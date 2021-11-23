@@ -26,6 +26,7 @@ namespace CIL {
         uint8_t sample_depth;
         void print_image_info();
         const void* internal_info = nullptr;
+        static void destroy(ImageInfo* img_info);
     };
 
 } // namespace CIL
