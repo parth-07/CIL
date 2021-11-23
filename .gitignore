@@ -1,0 +1,46 @@
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+*.Po
+
+# Libraries
+**/*.lib
+**/*.a
+**/*.la
+**/*.lax
+**/*.lo
+**/*.Plo
+
+# autoconf/automake
+configure
+**/Makefile
+**/Makefile.in
+autom4te.cache/*
+compile
+aclocal.m4
+config.*
+depcomp
+install-sh
+missing
+stamp-h1
+**/*.deps
+**/*.libs
+**/*.dirstamp
+**/*.save
+**/*.swp
+**/*.rej
+
+# check unit tests files
+**/*.log
+**/*.trs
+check
+
+# cscope files
+cscope.*
+compile_commands.json
+
+libtool
+ltmain.sh
+m4/*.m4
