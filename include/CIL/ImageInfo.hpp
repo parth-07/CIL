@@ -16,12 +16,20 @@ namespace CIL {
         COLOR_PALETTE
     };
 
+    enum class ImageType
+    {
+        JPEG,
+        PNG,
+        PPM
+    };
+
     struct ImageInfo
     {
         uint32_t width;
         uint32_t height;
         int num_components;
         ColorModel color_model;
+        ImageType image_type;
         uint8_t* data;
         uint8_t sample_depth;
         void print_image_info();

@@ -32,6 +32,7 @@ namespace CIL {
             cil_imageinfo->color_model = handleColorModel(this->color_model);
             cil_imageinfo->data = this->data;
             cil_imageinfo->internal_info = this;
+            cil_imageinfo->image_type = ImageType::JPEG;
             return cil_imageinfo;
         }
 

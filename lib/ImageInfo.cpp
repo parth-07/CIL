@@ -1,5 +1,6 @@
 #include <CIL/ImageInfo.hpp>
 #include <CIL/JPEG/JPEGHandler.hpp>
+#include <CIL/PNG/PNGHandler.hpp>
 
 namespace CIL {
     void ImageInfo::print_image_info()
@@ -11,7 +12,14 @@ namespace CIL {
     }
     void ImageInfo::destroy(ImageInfo* img_info)
     {
-        JPEG::JpegHandler::destroy(img_info);
+        switch (img_info->image_type)
+        {
+            case ImageType::JPEG:
+                // JPEG::JpegHandler::destroy(img_info);
+                break;
+            case ImageType::PNG: PNG::destroyPNGImageInfo(img_info); break;
+            case ImageType::PPM: break;
+        }
         delete[] img_info->data;
         delete img_info;
     }
