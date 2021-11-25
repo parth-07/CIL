@@ -5,6 +5,10 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#ifdef HAVE_CONFIG_H
+#include <config.h> // when build by autotools, this will be included
+#endif
+
 namespace CIL {
     enum class ColorModel
     {
