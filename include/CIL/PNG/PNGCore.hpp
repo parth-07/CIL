@@ -1,6 +1,6 @@
 #ifndef CIL_PNGCORE_HPP
 #define CIL_PNGCORE_HPP
-#include <libpng16/png.h>
+#include <png.h>
 
 #include <setjmp.h>
 

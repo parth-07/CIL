@@ -1,7 +1,7 @@
 #include <CIL/ImageInfo.hpp>
 #include <CIL/PNG/PNGCore.hpp>
 #include <CIL/PNG/PNGHandler.hpp>
-#include <libpng16/png.h>
+#include <png.h>
 
 namespace CIL {
     namespace PNG {
