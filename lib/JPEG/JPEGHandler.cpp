@@ -4,7 +4,7 @@
 
 namespace CIL {
     namespace JPEG {
-        CIL::ImageInfo* JpegHandler::read(const char* file_name)
+        CIL::ImageInfo JPEGHandler::read(const char* file_name)
         {
             JPEG::ImageInfo* image_info;
 
@@ -15,15 +15,15 @@ namespace CIL {
             error_manager.default_error_manager.output_message = outputMessage;
 
             FILE* file = fopen(file_name, "rb");
-            if (!file || !isJPGFile(file))
-                return NULL;
+            if (!file || !isJPEGFile(file))
+                return CIL::ImageInfo();
 
             if (setjmp(error_manager.jump_buffer))
             {
                 // We jump here on error
                 jpeg_destroy_decompress(&cinfo);
                 fclose(file);
-                return NULL;
+                return CIL::ImageInfo();
             }
 
             // set our custom error handler
@@ -65,7 +65,7 @@ namespace CIL {
             return image_info->toCILImage();
         }
 
-        bool JpegHandler::write(const CIL::ImageInfo* cil_image_info,
+        bool JPEGHandler::write(const CIL::ImageInfo* cil_image_info,
                                 const char* file_name)
         {
             if (!cil_image_info)
@@ -78,8 +78,8 @@ namespace CIL {
             if (!file)
                 return false;
 
-            JPEG::ImageInfo image_info;
-            image_info.fromCILImage(cil_image_info);
+            const JPEG::ImageInfo* image_info = JPEG::ImageInfo::fromCILImage(
+                cil_image_info);
 
             // set our custom error handler
             cinfo.err = jpeg_std_error(&errorManager.default_error_manager);
@@ -97,31 +97,32 @@ namespace CIL {
             jpeg_create_compress(&cinfo);
             jpeg_stdio_dest(&cinfo, file);
 
-            cinfo.image_width = image_info.width;
-            cinfo.image_height = image_info.height;
-            cinfo.input_components = image_info.num_components;
-            cinfo.in_color_space = image_info.old_img_info->color_model;
+            cinfo.image_width = image_info->width;
+            cinfo.image_height = image_info->height;
+            cinfo.input_components = image_info->num_components;
+            cinfo.in_color_space = image_info->old_img_info->color_model;
 
             jpeg_set_defaults(&cinfo);
-            jpeg_set_colorspace(&cinfo, image_info.color_model);
+            jpeg_set_colorspace(&cinfo, image_info->color_model);
             jpeg_start_compress(&cinfo, TRUE);
-            while (cinfo.next_scanline < image_info.height)
+            while (cinfo.next_scanline < image_info->height)
             {
-                uint8_t* p = image_info.data + cinfo.next_scanline *
-                                                   image_info.width *
-                                                   image_info.num_components;
+                uint8_t* p = image_info->data + cinfo.next_scanline *
+                                                    image_info->width *
+                                                    image_info->num_components;
                 jpeg_write_scanlines(&cinfo, &p, 1);
             }
 
             jpeg_finish_compress(&cinfo);
             jpeg_destroy_compress(&cinfo);
             fclose(file);
+            delete image_info;
 
             std::cerr << "Write success\n";
             return true;
         }
 
-        bool JpegHandler::isJPGFile(FILE* fp)
+        bool JPEGHandler::isJPEGFile(FILE* fp)
         {
             if (!fp)
                 return false;
@@ -144,15 +145,15 @@ namespace CIL {
             return is_jpeg;
         }
 
-        bool JpegHandler::isJPGFile(const char* file_name)
+        bool JPEGHandler::isJPEGFile(const char* file_name)
         {
             FILE* fp = fopen(file_name, "rb");
-            bool is_jpeg = isJPGFile(fp);
+            bool is_jpeg = isJPEGFile(fp);
             fclose(fp);
             return is_jpeg;
         }
 
-        void JpegHandler::errorExit(j_common_ptr cinfo)
+        void JPEGHandler::errorExit(j_common_ptr cinfo)
         {
             // cinfo->err is actually a pointer to
             // my_error_mgr.default_error_manager, since pub is the first
@@ -162,17 +163,17 @@ namespace CIL {
             longjmp(error_manager->jump_buffer, 1);
         }
 
-        void JpegHandler::outputMessage(j_common_ptr cinfo)
+        void JPEGHandler::outputMessage(j_common_ptr cinfo)
         {
             char buffer[JMSG_LENGTH_MAX];
             (*cinfo->err->format_message)(cinfo, buffer);
             fprintf(stderr, "%s\n", buffer);
         }
 
-        void JpegHandler::destroy(CIL::ImageInfo* cil_image_info)
+        void JPEGHandler::destroy(CIL::ImageInfo* cil_image_info)
         {
             auto jpeg_img = static_cast<const JPEG::ImageInfo*>(
-                cil_image_info->internal_info);
+                cil_image_info->internalInfo());
             delete jpeg_img;
         }
     } // namespace JPEG

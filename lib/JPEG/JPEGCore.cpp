@@ -23,28 +23,34 @@ namespace CIL {
             }
         }
 
-        CIL::ImageInfo* JPEG::ImageInfo::toCILImage()
+        CIL::ImageInfo JPEG::ImageInfo::toCILImage()
         {
-            CIL::ImageInfo* cil_imageinfo = new CIL::ImageInfo();
-            cil_imageinfo->height = this->height;
-            cil_imageinfo->width = this->width;
-            cil_imageinfo->num_components = this->num_components;
-            cil_imageinfo->color_model = handleColorModel(this->color_model);
-            cil_imageinfo->data = this->data;
-            cil_imageinfo->internal_info = this;
-            cil_imageinfo->image_type = ImageType::JPEG;
-            return cil_imageinfo;
+            std::unique_ptr<uint8_t[]> data(this->data);
+            const uint8_t sample_depth = 8;
+            const void* internal_info = this;
+            CIL::ImageInfo cil_img_info(width, height, num_components,
+                                        sample_depth,
+                                        handleColorModel(color_model),
+                                        CIL::ImageType::JPEG, std::move(data),
+                                        internal_info);
+            data = nullptr;
+            return cil_img_info;
         }
 
-        void JPEG::ImageInfo::fromCILImage(const CIL::ImageInfo* cil_imageinfo)
+        const JPEG::ImageInfo*
+        JPEG::ImageInfo::fromCILImage(const CIL::ImageInfo* cil_img_info)
         {
-            this->height = cil_imageinfo->height;
-            this->width = cil_imageinfo->width;
-            this->num_components = cil_imageinfo->num_components;
-            this->color_model = handleColorModel(cil_imageinfo->color_model);
-            this->data = cil_imageinfo->data;
-            this->old_img_info = static_cast<const JPEG::ImageInfo*>(
-                cil_imageinfo->internal_info);
+            JPEG::ImageInfo* jpeg_img_info = new JPEG::ImageInfo();
+            jpeg_img_info->height = cil_img_info->height();
+            jpeg_img_info->width = cil_img_info->width();
+            jpeg_img_info->num_components = cil_img_info->numComponents();
+            jpeg_img_info->color_model = handleColorModel(
+                cil_img_info->colorModel());
+            jpeg_img_info->data = const_cast<uint8_t*>(
+                &(*cil_img_info)(0, 0, 0));
+            jpeg_img_info->old_img_info = static_cast<const JPEG::ImageInfo*>(
+                cil_img_info->internalInfo());
+            return jpeg_img_info;
         }
     } // namespace JPEG
 } // namespace CIL

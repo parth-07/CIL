@@ -10,17 +10,17 @@
 
 namespace CIL {
     namespace JPEG {
-        class JpegHandler
+        class JPEGHandler
         {
           public:
-            static CIL::ImageInfo* read(const char* file_name);
+            static CIL::ImageInfo read(const char* file_name);
             static bool write(const CIL::ImageInfo* image_info,
                               const char* file_name);
             static void destroy(CIL::ImageInfo* image_info);
+            static bool isJPEGFile(FILE* fp);
+            static bool isJPEGFile(const char* file_name);
 
           private:
-            static bool isJPGFile(FILE* fp);
-            static bool isJPGFile(const char* file_name);
             struct ErrorManager
             {
                 jpeg_error_mgr default_error_manager;
