@@ -1,6 +1,6 @@
 #include <CIL/JPEG/JPEGHandler.hpp>
 
-using CIL::JPEG::JpegHandler;
+using CIL::JPEG::JPEGHandler;
 
 int main(int argc, char* argv[])
 {
@@ -10,10 +10,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    CIL::ImageInfo* image_info = JpegHandler::read(argv[1]);
-    image_info->color_model = CIL::ColorModel::COLOR_GRAY;
-    JpegHandler::write(image_info, argv[2]);
-    CIL::ImageInfo::destroy(image_info);
-
+    auto image_info = CIL::readImage(argv[1]);
+    image_info.setColorModel(CIL::ColorModel::COLOR_GRAY);
+    image_info.save(argv[2]);
     return 0;
 }
