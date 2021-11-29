@@ -1,4 +1,4 @@
-add_library(cil ImageInfo.cpp)
+add_library(cil ImageInfo.cpp ImageMatrix.cpp Pixel.cpp)
 
 if (CIL_ENABLE_JPEG)
     target_compile_definitions(cil PUBLIC CIL_JPEG_ENABLED)

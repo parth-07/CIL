@@ -8,11 +8,11 @@ if PNG
 SUBDIRS += PNG
 endif
 
-AM_CPPFLAGS = -I$(top_srcdir)/include
+AM_CPPFLAGS += -I$(top_srcdir)/include
 
 lib_LTLIBRARIES = libcil.la
 
-libcil_la_SOURCES = ImageInfo.cpp
+libcil_la_SOURCES = ImageInfo.cpp ImageMatrix.cpp Pixel.cpp
 libcil_la_LIBADD =
 
 if JPEG
