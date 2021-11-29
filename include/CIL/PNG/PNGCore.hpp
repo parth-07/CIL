@@ -27,7 +27,7 @@ namespace CIL {
             {
                 png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
             }
-            bool isValid() const { return png_ptr != NULL; }
+            bool empty() const { return png_ptr != NULL; }
             /// Returns true if `png_ptr` and `info_ptr` are initialized in this
             /// function; otherwise returns false.
             bool init(FILE* fp);
@@ -48,7 +48,7 @@ namespace CIL {
                 : png_ptr(p_png_ptr), info_ptr(p_info_ptr)
             {}
             void destroy() { png_destroy_write_struct(&png_ptr, &info_ptr); }
-            bool isValid() const { return png_ptr != NULL; }
+            bool empty() const { return png_ptr != NULL; }
             bool init(FILE* fp);
         };
 
@@ -66,6 +66,7 @@ namespace CIL {
 
             // Image data
             png_bytepp scanlines;
+
             ImageInfo(LibpngReadData& lrd, png_bytepp& p_scanlines);
             ImageInfo(const CIL::ImageInfo* cil_img_info)
             {
@@ -75,13 +76,12 @@ namespace CIL {
 
             /// Builds a `CIL::ImageInfo` object that describes the same image
             /// as desribed by the `this` object.
-            CIL::ImageInfo* toCILImageInfo() const;
+            CIL::ImageInfo toCILImageInfo();
 
             /// Initialises the `PNG::ImageInfo` object using a `CIL::ImageInfo`
             /// object.
             bool init(const CIL::ImageInfo* cil_img_info);
 
-            static void destroy(const PNG::ImageInfo** img_info);
             static void destroy(PNG::ImageInfo** img_info);
         };
 

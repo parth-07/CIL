@@ -22,7 +22,7 @@ namespace CIL {
             return rows;
         }
 
-        CIL::ImageInfo* readPNGFile(const char* filename)
+        CIL::ImageInfo PNGHandler::read(const char* filename)
         {
             LibpngReadData lrd;
             FILE* fp = fopen(filename, "rb");
@@ -30,7 +30,7 @@ namespace CIL {
             if (!lrd.init(fp))
             {
                 fclose(fp);
-                return NULL;
+                return CIL::ImageInfo();
             }
             png_read_info(lrd.png_ptr, lrd.info_ptr);
 
@@ -49,7 +49,7 @@ namespace CIL {
             return img_info->toCILImageInfo();
         }
 
-        CIL::ImageInfo* readPNGFileAs8RGB(const char* filename)
+        CIL::ImageInfo PNGHandler::readAs8RGB(const char* filename)
         {
             LibpngReadData lrd;
             FILE* fp = fopen(filename, "rb");
@@ -57,7 +57,7 @@ namespace CIL {
             if (!lrd.init(fp))
             {
                 fclose(fp);
-                return NULL;
+                return CIL::ImageInfo();
             }
 
             png_read_info(lrd.png_ptr, lrd.info_ptr);
@@ -91,21 +91,19 @@ namespace CIL {
             auto img_info = new PNG::ImageInfo(lrd, scanlines);
             fclose(fp);
             lrd.destroy();
-
             return img_info->toCILImageInfo();
         }
 
-        bool writePNGFile(const CIL::ImageInfo* cil_img_info,
-                          const char* filename)
+        bool PNGHandler::write(const CIL::ImageInfo* cil_img_info,
+                               const char* filename)
         {
-            const PNG::ImageInfo* img_info = new const PNG::ImageInfo(
-                cil_img_info);
+            PNG::ImageInfo* img_info = new PNG::ImageInfo(cil_img_info);
             bool res = writePNGFile(img_info, filename);
             PNG::ImageInfo::destroy(&img_info);
             return res;
         }
 
-        bool isPNGFile(FILE* fp)
+        bool PNGHandler::isPNGFile(FILE* fp)
         {
             if (!fp)
                 return false;
@@ -121,7 +119,7 @@ namespace CIL {
             return is_png;
         }
 
-        bool isPNGFile(const char* filename)
+        bool PNGHandler::isPNGFile(const char* filename)
         {
             FILE* fp = fopen(filename, "rb");
             bool is_png = isPNGFile(fp);
@@ -129,11 +127,11 @@ namespace CIL {
             return is_png;
         }
 
-        void destroyPNGImageInfo(const CIL::ImageInfo* cil_image_info)
+        void PNGHandler::destroy(const CIL::ImageInfo* cil_image_info)
         {
-            auto ptr = static_cast<const PNG::ImageInfo*>(
-                cil_image_info->internal_info);
-
+            auto ptr = const_cast<PNG::ImageInfo*>(
+                static_cast<const PNG::ImageInfo*>(
+                    cil_image_info->internalInfo()));
             PNG::ImageInfo::destroy(&ptr);
         }
     } // namespace PNG

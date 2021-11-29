@@ -1,6 +1,7 @@
 #include <CIL/ImageInfo.hpp>
 #include <CIL/PNG/PNGCore.hpp>
 #include <CIL/PNG/PNGHandler.hpp>
+#include <cstring>
 #include <iostream>
 #include <setjmp.h>
 
@@ -26,7 +27,7 @@ namespace CIL {
                 return false;
             if (!fp)
                 return false;
-            if (!isPNGFile(fp))
+            if (!PNGHandler::isPNGFile(fp))
                 return false;
             png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
                                              /*error_ptr*/ NULL,
@@ -161,30 +162,31 @@ namespace CIL {
             }
         }
 
-        CIL::ImageInfo* PNG::ImageInfo::toCILImageInfo() const
+        CIL::ImageInfo PNG::ImageInfo::toCILImageInfo()
         {
-            auto cil_img_info = new CIL::ImageInfo();
-            cil_img_info->width = width;
-            cil_img_info->height = height;
-            cil_img_info->color_model = getCorrespondingCILColorModel(
-                color_type);
-            cil_img_info->num_components = static_cast<int>(num_channels);
-            cil_img_info->sample_depth = sample_depth;
-            cil_img_info->data = static_cast<uint8_t*>(scanlines[0]);
-            cil_img_info->internal_info = this;
-            cil_img_info->image_type = ImageType::PNG;
+            auto color_model = getCorrespondingCILColorModel(color_type);
+            const void* internal_info = this;
+            auto image_type = ImageType::PNG;
 
+            std::unique_ptr<uint8_t[]> data(
+                static_cast<uint8_t*>(scanlines[0]));
+
+            delete[] scanlines;
+            scanlines = static_cast<png_bytepp>(nullptr);
+            CIL::ImageInfo cil_img_info(width, height, num_channels,
+                                        sample_depth, color_model, image_type,
+                                        std::move(data), internal_info);
             return cil_img_info;
         }
 
         bool PNG::ImageInfo::init(const CIL::ImageInfo* cil_img_info)
         {
-            width = cil_img_info->width;
-            height = cil_img_info->height;
+            width = cil_img_info->width();
+            height = cil_img_info->height();
             color_type = getCorrespondingLibpngColorModel(
-                cil_img_info->color_model);
-            num_channels = static_cast<png_byte>(cil_img_info->num_components);
-            sample_depth = static_cast<png_byte>(cil_img_info->sample_depth);
+                cil_img_info->colorModel());
+            num_channels = static_cast<png_byte>(cil_img_info->numComponents());
+            sample_depth = static_cast<png_byte>(cil_img_info->sampleDepth());
             // TODO: Add support for different bit depth images.
             auto rowbytes = (width * num_channels);
             if (sample_depth == 16)
@@ -193,30 +195,32 @@ namespace CIL {
                 rowbytes /= (8 / sample_depth);
 
             scanlines = new png_bytep[height];
+            auto data = new png_byte[height * rowbytes];
+
+            std::memcpy(data, &(*cil_img_info)(0, 0, 0), height * rowbytes);
+
             for (auto i = 0U; i < height; ++i)
             {
-                scanlines[i] = cil_img_info->data + i * rowbytes;
+                scanlines[i] = data + i * rowbytes;
             }
 
             auto internal_info = static_cast<const PNG::ImageInfo*>(
-                cil_img_info->internal_info);
+                cil_img_info->internalInfo());
             interlace_type = internal_info->interlace_type;
             compression_type = internal_info->compression_type;
             filter_type = internal_info->filter_type;
             return true;
         }
 
-        void PNG::ImageInfo::destroy(const PNG::ImageInfo** img_info)
+        void PNG::ImageInfo::destroy(PNG::ImageInfo** img_info)
         {
+            if (!*img_info)
+                return;
+            if ((*img_info)->scanlines && (*img_info)->scanlines[0])
+                delete[](*img_info)->scanlines[0];
             delete[](*img_info)->scanlines;
             delete *img_info;
             *img_info = nullptr;
-        }
-
-        void PNG::ImageInfo::destroy(PNG::ImageInfo** img_info)
-        {
-            auto ptr = const_cast<const PNG::ImageInfo**>(img_info);
-            destroy(ptr);
         }
     } // namespace PNG
 } // namespace CIL
