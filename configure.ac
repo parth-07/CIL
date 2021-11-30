@@ -63,8 +63,6 @@ AS_IF(
 
 AC_CONFIG_FILES([
     Makefile include/Makefile
-    lib/Makefile lib/JPEG/Makefile lib/PNG/Makefile
-    examples/Makefile examples/JPEG/Makefile examples/PNG/Makefile
 ])
 
 AC_OUTPUT
