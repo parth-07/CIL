@@ -64,12 +64,16 @@ namespace CIL {
     {
         switch (m_image_type)
         {
+            case ImageType::JPEG:
 #ifdef CIL_JPEG_ENABLED
-            case ImageType::JPEG: JPEG::JPEGHandler::destroy(this); break;
+                JPEG::JPEGHandler::destroy(this);
 #endif
+                break;
+            case ImageType::PNG:
 #ifdef CIL_PNG_ENABLED
-            case ImageType::PNG: PNG::PNGHandler::destroy(this); break;
+                PNG::PNGHandler::destroy(this);
 #endif
+                break;
             case ImageType::PPM: break;
         }
     }
@@ -128,14 +132,16 @@ namespace CIL {
     {
         switch (m_image_type)
         {
-#ifdef CIL_PNG_ENABLED
             case ImageType::PNG:
+#ifdef CIL_PNG_ENABLED
                 return PNG::PNGHandler::write(this, filename.c_str());
 #endif
-#ifdef CIL_JPEG_ENABLED
+                break;
             case ImageType::JPEG:
+#ifdef CIL_JPEG_ENABLED
                 return JPEG::JPEGHandler::write(this, filename.c_str());
 #endif
+                break;
             case ImageType::PPM: break;
         }
         return false;

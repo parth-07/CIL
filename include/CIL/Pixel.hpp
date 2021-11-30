@@ -14,6 +14,8 @@ namespace CIL {
         const uint8_t& operator[](int comp) const;
         uint8_t& operator[](int comp);
         bool empty() const;
+        uint32_t row() const { return m_row; }
+        uint32_t col() const { return m_col; }
         Pixel(ImageMatrix* image_matrix, uint32_t row, uint32_t col)
             : m_row(row), m_col(col), m_image_matrix(*image_matrix)
         {}
@@ -21,7 +23,7 @@ namespace CIL {
             : m_row(row), m_col(col), m_image_matrix(image_matrix)
         {}
         Pixel operator++(int);
-        Pixel& operator++();
+        Pixel operator++();
         void static swap(CIL::Pixel& p1, CIL::Pixel& p2);
     };
 } // namespace CIL

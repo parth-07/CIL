@@ -34,11 +34,13 @@ namespace CIL {
     }
 
     // pre increment operator
-    Pixel& Pixel::operator++()
+    Pixel Pixel::operator++()
     {
         if (m_col + 1 > m_image_matrix.width())
+        {
             m_row++;
-        else
+            m_col = 0;
+        } else
             m_col++;
         return *this;
     }
