@@ -55,6 +55,12 @@ else()
     endif()
 endif()
 
+if(MSVC)
+  add_compile_options(/W4 /WX)
+else()
+  add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+endif()
+
 add_subdirectory(lib)
 
 if(CIL_BUILD_EXAMPLES)
