@@ -9,6 +9,10 @@ find_package(PkgConfig REQUIRED)
 
 option(LIBPNG_DIR "Path to libpng installation directory")
 option(LIBJPEG_DIR "Path to libjpeg installation directory")
+STRING(CONCAT libjpeg_turbo_option_message "Path to libjpeg-turbo installation directory."
+                                           "If both libjpeg and libjpeg-turbo are found"
+                                           "libjpeg-turbo will be used")
+option(LIBJPEG_TURBO_DIR libjpeg_turbo_option_message)
 option(CIL_BUILD_EXAMPLES "Specify if examples should be added and built")
 
 if(ENV{PKG_CONFIG_PATH})
@@ -24,7 +28,11 @@ endif()
 if(LIBJPEG_DIR)
     list(PREPEND CMAKE_PREFIX_PATH ${LIBJPEG_DIR})
 endif()
-    
+
+if(LIBJPEG_TURBO_DIR)
+    list(PREPEND CMAKE_PREFIX_PATH ${LIBJPEG_TURBO_DIR})
+endif()
+
 pkg_check_modules(LIBPNG libpng=1.6.37)
 if(LIBPNG_FOUND)
     set(CIL_ENABLE_PNG true)
@@ -40,18 +48,30 @@ else()
     endif()
 endif()
 
-pkg_check_modules(LIBJPEG libjpeg=9.4.0)
-if(LIBJPEG_FOUND)
+pkg_check_modules(LIBJPEG_TURBO libjpeg=2.1.1)
+if (NOT LIBJPEG_TURBO_FOUND)
+    pkg_check_modules(LIBJPEG libjpeg=9.4.0)
+endif()
+
+set(ACTIVE_JPEG_LIB "")
+if(LIBJPEG_TURBO_FOUND)
     set(CIL_ENABLE_JPEG true)
+    set(ACTIVE_JPEG_LIB "LIBJPEG_TURBO")
+    string(CONCAT libjpeg_turbo_use_message "Libjpeg-turbo ${LIBJPEG_TURBO_VERSION} will "
+                                            "be used to add JPEG support to the project.")
+    message(STATUS ${libjpeg_turbo_use_message})
+elseif(LIBJPEG_FOUND)
+    set(CIL_ENABLE_JPEG true)
+    set(ACTIVE_JPEG_LIB "LIBJPEG")
     string(CONCAT libjpeg_found_message "Libjpeg ${LIBJPEG_VERSION} will "
            "be used to add JPEG support to the project.")
     message(STATUS ${libjpeg_found_message})
 else()
-    set(CIL_ENABLE_JPEG false)
-    if (LIBJPEG_DIR)
-        string(CONCAT libjpeg_not_found_warning "Libjpeg pkg config file not found. "
+    if (LIBJPEG_DIR OR LIBJPEG_TURBO_DIR)
+        set(CIL_ENABLE_JPEG false)
+        string(CONCAT jpeg_lib_not_found_warning "Libjpeg pkg config file not found. "
                "Project is being configured to be built without the JPEG support.")
-        message(WARNING ${libjpeg_not_found_warning})
+        message(WARNING ${jpeg_lib_not_found_warning})
     endif()
 endif()
 
