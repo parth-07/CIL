@@ -44,7 +44,7 @@ namespace CIL {
     // pre increment operator
     Pixel& Pixel::operator++()
     {
-        if (m_col + 1 > m_image_matrix.width())
+        if (m_col + 1 >= m_image_matrix.width())
         {
             m_row++;
             m_col = 0;
@@ -63,7 +63,7 @@ namespace CIL {
     Pixel& Pixel::operator--()
     {
         // remember: unsigned comparision
-        if (m_col - 1 > m_image_matrix.width())
+        if (m_col - 1 >= m_image_matrix.width())
         {
             m_row--;
             m_col = m_image_matrix.width();

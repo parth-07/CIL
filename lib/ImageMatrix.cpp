@@ -12,15 +12,7 @@ namespace CIL {
           m_sample_depth(sample_depth), m_data(std::move(data))
     {}
 
-    ImageMatrix::ImageMatrix(const ImageMatrix& other)
-        : m_width(other.m_width), m_height(other.m_height),
-          m_num_components(other.m_num_components),
-          m_sample_depth(other.m_sample_depth),
-          m_data(new uint8_t[other.m_height * other.rowbytes()])
-    {
-        std::memcpy(m_data.get(), other.m_data.get(),
-                    other.m_height * other.rowbytes());
-    }
+    ImageMatrix::ImageMatrix(const ImageMatrix& other) { *this = other; }
 
     ImageMatrix& ImageMatrix::operator=(const ImageMatrix& other)
     {
@@ -34,11 +26,7 @@ namespace CIL {
         return *this;
     }
 
-    ImageMatrix::ImageMatrix(ImageMatrix&& other)
-        : m_width(other.m_width), m_height(other.m_height),
-          m_num_components(other.m_num_components),
-          m_sample_depth(other.m_sample_depth), m_data(std::move(other.m_data))
-    {}
+    ImageMatrix::ImageMatrix(ImageMatrix&& other) { *this = other; }
 
     ImageMatrix& ImageMatrix::operator=(ImageMatrix&& rvalue)
     {

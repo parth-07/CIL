@@ -34,25 +34,25 @@ namespace CIL {
             jpeg_read_header(&cinfo, TRUE);
             jpeg_start_decompress(&cinfo);
 
-            // allocate memory in heap only
-            image_info = new JPEG::ImageInfo();
-
             // output prefix in cinfo objects is counterintuitive since we are
             // reading the image but they tell the "output" image format that
             // will be accessible after decompression
-            image_info->width = cinfo.output_width;
-            image_info->height = cinfo.output_height;
-            image_info->num_components = cinfo.out_color_components;
-            image_info->color_model = cinfo.out_color_space;
-            image_info
-                ->data = new uint8_t[image_info->width * image_info->height *
-                                     image_info->num_components];
+            //
+            // allocate memory in heap only
+            uint8_t* data = new uint8_t[cinfo.output_width *
+                                        cinfo.output_height *
+                                        cinfo.out_color_components];
+
+            image_info = new JPEG::ImageInfo(cinfo.output_width,
+                                             cinfo.output_height,
+                                             cinfo.out_color_components,
+                                             cinfo.out_color_space, data);
 
             while (cinfo.output_scanline < cinfo.image_height)
             {
-                uint8_t* p = image_info->data + cinfo.output_scanline *
-                                                    cinfo.image_width *
-                                                    cinfo.num_components;
+                uint8_t* p = image_info->data() + cinfo.output_scanline *
+                                                      cinfo.image_width *
+                                                      cinfo.num_components;
                 jpeg_read_scanlines(&cinfo, &p, 1);
             }
 
@@ -97,19 +97,21 @@ namespace CIL {
             jpeg_create_compress(&cinfo);
             jpeg_stdio_dest(&cinfo, file);
 
-            cinfo.image_width = image_info->width;
-            cinfo.image_height = image_info->height;
-            cinfo.input_components = image_info->num_components;
-            cinfo.in_color_space = image_info->old_img_info->color_model;
+            cinfo.image_width = image_info->width();
+            cinfo.image_height = image_info->height();
+            cinfo.input_components = image_info->numComponents();
+            cinfo.in_color_space = static_cast<JPEG::ImageInfo*>(
+                                       cil_image_info->internalInfo())
+                                       ->colorType();
 
             jpeg_set_defaults(&cinfo);
-            jpeg_set_colorspace(&cinfo, image_info->color_model);
+            jpeg_set_colorspace(&cinfo, image_info->colorType());
             jpeg_start_compress(&cinfo, TRUE);
-            while (cinfo.next_scanline < image_info->height)
+            while (cinfo.next_scanline < image_info->height())
             {
-                uint8_t* p = image_info->data + cinfo.next_scanline *
-                                                    image_info->width *
-                                                    image_info->num_components;
+                uint8_t* p = image_info->data() +
+                             cinfo.next_scanline * image_info->width() *
+                                 image_info->numComponents();
                 jpeg_write_scanlines(&cinfo, &p, 1);
             }
 
@@ -168,6 +170,14 @@ namespace CIL {
             char buffer[JMSG_LENGTH_MAX];
             (*cinfo->err->format_message)(cinfo, buffer);
             fprintf(stderr, "%s\n", buffer);
+        }
+
+        void* JPEGHandler::clone(void* internal_img_info)
+        {
+            auto jpeg_img_info = static_cast<JPEG::ImageInfo*>(
+                internal_img_info);
+            auto new_jpeg_img_info = new JPEG::ImageInfo(*jpeg_img_info);
+            return new_jpeg_img_info;
         }
 
         void JPEGHandler::destroy(CIL::ImageInfo* cil_image_info)

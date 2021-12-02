@@ -68,7 +68,7 @@ namespace CIL {
             // Image data
             png_bytepp m_scanlines = nullptr;
 
-            public:
+          public:
             ImageInfo(LibpngReadData& lrd, png_bytepp& scanlines);
             ImageInfo(const CIL::ImageInfo* cil_img_info)
             {
@@ -93,7 +93,7 @@ namespace CIL {
             png_byte compressionType() const { return m_compression_type; }
             png_byte filterType() const { return m_filter_type; }
             size_t rowbytes() const { return m_rowbytes; }
-            png_bytepp scanlines() const {return m_scanlines;}
+            png_bytepp scanlines() const { return m_scanlines; }
         };
 
         /// Writes the image described by `img_info` in the file `filename`.

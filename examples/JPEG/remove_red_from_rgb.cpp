@@ -10,11 +10,11 @@ int main(int argc, char* argv[])
         std::cerr << "Usage: ./bin <in.jpg> <out.jpg>";
         return 1;
     }
-    auto image_info = CIL::readImage(argv[1]);
-    for (auto px : image_info)
+    auto img_info = CIL::readImage(argv[1]);
+    for (auto px : img_info)
     {
         px[0] = 0; // set R component zero
     }
-    image_info.save(argv[2]);
+    img_info.save(argv[2]);
     return 0;
 }

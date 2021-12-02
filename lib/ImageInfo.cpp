@@ -10,8 +10,7 @@ namespace CIL {
     ImageInfo::ImageInfo(uint32_t width, uint32_t height,
                          uint32_t num_components, uint32_t sample_depth,
                          ColorModel color_model, ImageType image_type,
-                         std::unique_ptr<uint8_t[]> data,
-                         void* internal_info)
+                         std::unique_ptr<uint8_t[]> data, void* internal_info)
         : m_color_model(color_model), m_image_type(image_type),
           m_data(width, height, num_components, sample_depth, std::move(data)),
           m_internal_info(internal_info)
@@ -20,7 +19,7 @@ namespace CIL {
     // TODO: We cannot just copy the internal_info pointer
     ImageInfo::ImageInfo(const ImageInfo& other)
         : m_color_model(other.m_color_model), m_image_type(other.m_image_type),
-          m_data(other.m_data), m_internal_info(other.m_internal_info)
+          m_data(other.m_data), m_internal_info(other.cloneInternalInfo())
     {}
 
     ImageInfo& ImageInfo::operator=(const ImageInfo& other)
@@ -30,6 +29,8 @@ namespace CIL {
         m_color_model = other.m_color_model;
         m_image_type = other.m_image_type;
         m_data = other.m_data;
+        destroyInternalInfo();
+        m_internal_info = other.cloneInternalInfo();
         return *this;
     }
 
@@ -60,7 +61,9 @@ namespace CIL {
                    << m_data.numComponents() << "\nColor space:\t"
                    << static_cast<int>(m_color_model) << "\n";
     }
-    ImageInfo::~ImageInfo()
+    ImageInfo::~ImageInfo() { destroyInternalInfo(); }
+
+    void ImageInfo::destroyInternalInfo()
     {
         switch (m_image_type)
         {
@@ -145,6 +148,24 @@ namespace CIL {
             case ImageType::PPM: break;
         }
         return false;
+    }
+    void* ImageInfo::cloneInternalInfo() const
+    {
+        switch (m_image_type)
+        {
+            case ImageType::PNG:
+#ifdef CIL_PNG_ENABLED
+                return PNG::PNGHandler::clone(this->m_internal_info);
+#endif
+                break;
+            case ImageType::JPEG:
+#ifdef CIL_JPEG_ENABLED
+                return JPEG::JPEGHandler::clone(this->m_internal_info);
+#endif
+                break;
+            case ImageType::PPM: break;
+        }
+        return nullptr;
     }
 
     bool ImageInfo::empty() const { return m_data.empty(); }

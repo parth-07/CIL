@@ -100,12 +100,16 @@ namespace CIL {
         void setColorModel(ColorModel color_model);
         bool save(const std::string& filename) const;
         iterator begin() { return iterator(m_data(0, 0)); }
-        iterator end() { return iterator(m_data(m_data.height() + 1, 0)); }
+        iterator end() { return iterator(m_data(m_data.height(), 0)); }
         Pixel operator()(uint32_t row, uint32_t col);
         uint8_t& operator()(uint32_t row, uint32_t col, int comp);
         const uint8_t& operator()(uint32_t row, uint32_t col, int comp) const;
         void printImageInfo();
         bool empty() const;
+
+      private:
+        void* cloneInternalInfo() const;
+        void destroyInternalInfo();
     };
 
     CIL::ImageInfo readImage(const char* filename);

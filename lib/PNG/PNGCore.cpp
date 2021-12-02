@@ -84,38 +84,38 @@ namespace CIL {
             m_sample_depth = png_get_bit_depth(lrd.png_ptr, lrd.info_ptr);
             m_color_type = png_get_color_type(lrd.png_ptr, lrd.info_ptr);
             m_num_channels = png_get_channels(lrd.png_ptr, lrd.info_ptr);
-            m_interlace_type = png_get_interlace_type(lrd.png_ptr, lrd.info_ptr);
+            m_interlace_type = png_get_interlace_type(lrd.png_ptr,
+                                                      lrd.info_ptr);
             m_compression_type = png_get_compression_type(lrd.png_ptr,
-                                                        lrd.info_ptr);
+                                                          lrd.info_ptr);
             m_filter_type = png_get_filter_type(lrd.png_ptr, lrd.info_ptr);
             m_rowbytes = png_get_rowbytes(lrd.png_ptr, lrd.info_ptr);
         }
 
-
         PNG::ImageInfo::ImageInfo(const PNG::ImageInfo& other)
             : m_width(other.m_width), m_height(other.m_height),
               m_sample_depth(other.m_sample_depth),
-              m_rowbytes(other.m_rowbytes),
               m_color_type(other.m_color_type),
               m_num_channels(other.m_num_channels),
               m_interlace_type(other.m_interlace_type),
               m_compression_type(other.m_compression_type),
-              m_filter_type(other.m_filter_type)
+              m_filter_type(other.m_filter_type), m_rowbytes(other.m_rowbytes)
         {
             m_scanlines = nullptr;
-            if (other.m_scanlines) {
+            if (other.m_scanlines)
+            {
                 m_scanlines = new png_bytep[m_height];
                 auto data = new png_byte[m_height * m_rowbytes];
                 std::memcpy(data, other.m_scanlines[0],
-                            sizeof(png_byte) * m_height * m_rowbytes);                            
+                            sizeof(png_byte) * m_height * m_rowbytes);
             }
         }
 
         void ImageInfo::dumpImageHeaders() const
         {
             std::clog << "Dimensions: " << m_width << "x" << m_height << "\n";
-            std::clog << "sample depth: " << static_cast<unsigned>(m_sample_depth)
-                      << "\n";
+            std::clog << "sample depth: "
+                      << static_cast<unsigned>(m_sample_depth) << "\n";
             std::clog << "number of channels: "
                       << static_cast<unsigned>(m_num_channels) << "\n";
             std::clog << "Color type: " << static_cast<unsigned>(m_color_type)
@@ -208,7 +208,8 @@ namespace CIL {
             m_height = cil_img_info->height();
             m_color_type = getCorrespondingLibpngColorModel(
                 cil_img_info->colorModel());
-            m_num_channels = static_cast<png_byte>(cil_img_info->numComponents());
+            m_num_channels = static_cast<png_byte>(
+                cil_img_info->numComponents());
             m_sample_depth = static_cast<png_byte>(cil_img_info->sampleDepth());
             m_rowbytes = internal_info->m_rowbytes;
 
@@ -228,11 +229,13 @@ namespace CIL {
             return true;
         }
 
-        PNG::ImageInfo::~ImageInfo() {
-            if (m_scanlines) {
+        PNG::ImageInfo::~ImageInfo()
+        {
+            if (m_scanlines)
+            {
                 if (m_scanlines[0])
-                    delete [] m_scanlines[0];
-                delete [] m_scanlines;
+                    delete[] m_scanlines[0];
+                delete[] m_scanlines;
             }
         }
         void PNG::ImageInfo::destroy(PNG::ImageInfo** img_info)

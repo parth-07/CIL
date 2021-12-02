@@ -19,6 +19,7 @@ namespace CIL {
             static void destroy(CIL::ImageInfo* image_info);
             static bool isJPEGFile(FILE* fp);
             static bool isJPEGFile(const char* file_name);
+            static void* clone(void* internal_img_info);
 
           private:
             struct ErrorManager
