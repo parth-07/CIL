@@ -38,7 +38,7 @@ namespace CIL {
         ColorModel m_color_model;
         ImageType m_image_type;
         ImageMatrix m_data;
-        const void* m_internal_info = nullptr;
+        void* m_internal_info = nullptr;
 
       public:
         class iterator
@@ -84,7 +84,7 @@ namespace CIL {
         ImageInfo(uint32_t width, uint32_t height, uint32_t num_components,
                   uint32_t sample_depth, ColorModel color_model,
                   ImageType image_type, std::unique_ptr<uint8_t[]> data,
-                  const void* internal_info = nullptr);
+                  void* internal_info = nullptr);
         ImageInfo(const ImageInfo&);
         ImageInfo& operator=(const ImageInfo&);
         ImageInfo(ImageInfo&&);
@@ -95,7 +95,7 @@ namespace CIL {
         uint32_t numComponents() const;
         uint32_t sampleDepth() const;
         uint64_t size() const;
-        const void* internalInfo() const;
+        void* internalInfo() const;
         ColorModel colorModel() const;
         void setColorModel(ColorModel color_model);
         bool save(const std::string& filename) const;

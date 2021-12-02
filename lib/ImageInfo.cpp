@@ -11,7 +11,7 @@ namespace CIL {
                          uint32_t num_components, uint32_t sample_depth,
                          ColorModel color_model, ImageType image_type,
                          std::unique_ptr<uint8_t[]> data,
-                         const void* internal_info)
+                         void* internal_info)
         : m_color_model(color_model), m_image_type(image_type),
           m_data(width, height, num_components, sample_depth, std::move(data)),
           m_internal_info(internal_info)
@@ -85,7 +85,7 @@ namespace CIL {
     ColorModel ImageInfo::colorModel() const { return m_color_model; }
     uint64_t ImageInfo::size() const { return width() * height(); }
 
-    const void* ImageInfo::internalInfo() const { return m_internal_info; }
+    void* ImageInfo::internalInfo() const { return m_internal_info; }
     void ImageInfo::setColorModel(ColorModel color_model)
     {
         m_color_model = color_model;

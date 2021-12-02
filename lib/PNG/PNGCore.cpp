@@ -76,34 +76,35 @@ namespace CIL {
             return true;
         }
 
-        ImageInfo::ImageInfo(LibpngReadData& lrd, png_bytepp& p_scanlines)
-            : scanlines(p_scanlines)
+        ImageInfo::ImageInfo(LibpngReadData& lrd, png_bytepp& scanlines)
+            : m_scanlines(scanlines)
         {
-            width = png_get_image_width(lrd.png_ptr, lrd.info_ptr);
-            height = png_get_image_height(lrd.png_ptr, lrd.info_ptr);
-            sample_depth = png_get_bit_depth(lrd.png_ptr, lrd.info_ptr);
-            color_type = png_get_color_type(lrd.png_ptr, lrd.info_ptr);
-            num_channels = png_get_channels(lrd.png_ptr, lrd.info_ptr);
-            interlace_type = png_get_interlace_type(lrd.png_ptr, lrd.info_ptr);
-            compression_type = png_get_compression_type(lrd.png_ptr,
+            m_width = png_get_image_width(lrd.png_ptr, lrd.info_ptr);
+            m_height = png_get_image_height(lrd.png_ptr, lrd.info_ptr);
+            m_sample_depth = png_get_bit_depth(lrd.png_ptr, lrd.info_ptr);
+            m_color_type = png_get_color_type(lrd.png_ptr, lrd.info_ptr);
+            m_num_channels = png_get_channels(lrd.png_ptr, lrd.info_ptr);
+            m_interlace_type = png_get_interlace_type(lrd.png_ptr, lrd.info_ptr);
+            m_compression_type = png_get_compression_type(lrd.png_ptr,
                                                         lrd.info_ptr);
-            filter_type = png_get_filter_type(lrd.png_ptr, lrd.info_ptr);
+            m_filter_type = png_get_filter_type(lrd.png_ptr, lrd.info_ptr);
+            m_rowbytes = png_get_rowbytes(lrd.png_ptr, lrd.info_ptr);
         }
 
         void ImageInfo::dumpImageHeaders() const
         {
-            std::clog << "Dimensions: " << width << "x" << height << "\n";
-            std::clog << "sample depth: " << static_cast<unsigned>(sample_depth)
+            std::clog << "Dimensions: " << m_width << "x" << m_height << "\n";
+            std::clog << "sample depth: " << static_cast<unsigned>(m_sample_depth)
                       << "\n";
             std::clog << "number of channels: "
-                      << static_cast<unsigned>(num_channels) << "\n";
-            std::clog << "Color type: " << static_cast<unsigned>(color_type)
+                      << static_cast<unsigned>(m_num_channels) << "\n";
+            std::clog << "Color type: " << static_cast<unsigned>(m_color_type)
                       << "\n";
             std::clog << "Interlace type: "
-                      << static_cast<unsigned>(interlace_type) << "\n";
+                      << static_cast<unsigned>(m_interlace_type) << "\n";
             std::clog << "Compression type: "
-                      << static_cast<unsigned>(compression_type) << "\n";
-            std::clog << "Filter type: " << static_cast<unsigned>(filter_type)
+                      << static_cast<unsigned>(m_compression_type) << "\n";
+            std::clog << "Filter type: " << static_cast<unsigned>(m_filter_type)
                       << "\n";
         }
 
@@ -117,15 +118,15 @@ namespace CIL {
                 return false;
             }
 
-            png_set_IHDR(lwd.png_ptr, lwd.info_ptr, img_info->width,
-                         img_info->height, img_info->sample_depth,
-                         img_info->color_type, img_info->interlace_type,
-                         img_info->compression_type, img_info->filter_type);
+            png_set_IHDR(lwd.png_ptr, lwd.info_ptr, img_info->width(),
+                         img_info->height(), img_info->sampleDepth(),
+                         img_info->colorType(), img_info->interlaceType(),
+                         img_info->compressionType(), img_info->filterType());
 
             png_write_info(lwd.png_ptr, lwd.info_ptr);
-            if (!img_info->scanlines)
+            if (!img_info->scanlines())
                 return false;
-            png_write_image(lwd.png_ptr, img_info->scanlines);
+            png_write_image(lwd.png_ptr, img_info->scanlines());
             png_write_end(lwd.png_ptr, /*end_info_ptr*/ NULL);
 
             lwd.destroy();
@@ -164,61 +165,60 @@ namespace CIL {
 
         CIL::ImageInfo PNG::ImageInfo::toCILImageInfo()
         {
-            auto color_model = getCorrespondingCILColorModel(color_type);
-            const void* internal_info = this;
+            auto color_model = getCorrespondingCILColorModel(m_color_type);
+            void* internal_info = this;
             auto image_type = ImageType::PNG;
 
             std::unique_ptr<uint8_t[]> data(
-                static_cast<uint8_t*>(scanlines[0]));
+                static_cast<uint8_t*>(m_scanlines[0]));
 
-            delete[] scanlines;
-            scanlines = static_cast<png_bytepp>(nullptr);
-            CIL::ImageInfo cil_img_info(width, height, num_channels,
-                                        sample_depth, color_model, image_type,
+            delete[] m_scanlines;
+            m_scanlines = static_cast<png_bytepp>(nullptr);
+            CIL::ImageInfo cil_img_info(m_width, m_height, m_num_channels,
+                                        m_sample_depth, color_model, image_type,
                                         std::move(data), internal_info);
             return cil_img_info;
         }
 
         bool PNG::ImageInfo::init(const CIL::ImageInfo* cil_img_info)
         {
-            width = cil_img_info->width();
-            height = cil_img_info->height();
-            color_type = getCorrespondingLibpngColorModel(
-                cil_img_info->colorModel());
-            num_channels = static_cast<png_byte>(cil_img_info->numComponents());
-            sample_depth = static_cast<png_byte>(cil_img_info->sampleDepth());
-            // TODO: Add support for different bit depth images.
-            auto rowbytes = (width * num_channels);
-            if (sample_depth == 16)
-                rowbytes *= 2;
-            else
-                rowbytes /= (8 / sample_depth);
-
-            scanlines = new png_bytep[height];
-            auto data = new png_byte[height * rowbytes];
-
-            std::memcpy(data, &(*cil_img_info)(0, 0, 0), height * rowbytes);
-
-            for (auto i = 0U; i < height; ++i)
-            {
-                scanlines[i] = data + i * rowbytes;
-            }
-
             auto internal_info = static_cast<const PNG::ImageInfo*>(
                 cil_img_info->internalInfo());
-            interlace_type = internal_info->interlace_type;
-            compression_type = internal_info->compression_type;
-            filter_type = internal_info->filter_type;
+            m_width = cil_img_info->width();
+            m_height = cil_img_info->height();
+            m_color_type = getCorrespondingLibpngColorModel(
+                cil_img_info->colorModel());
+            m_num_channels = static_cast<png_byte>(cil_img_info->numComponents());
+            m_sample_depth = static_cast<png_byte>(cil_img_info->sampleDepth());
+            m_rowbytes = internal_info->m_rowbytes;
+
+            m_scanlines = new png_bytep[m_height];
+            auto data = new png_byte[m_height * m_rowbytes];
+
+            std::memcpy(data, &(*cil_img_info)(0, 0, 0), m_height * m_rowbytes);
+
+            for (auto i = 0U; i < m_height; ++i)
+            {
+                m_scanlines[i] = data + i * m_rowbytes;
+            }
+
+            m_interlace_type = internal_info->m_interlace_type;
+            m_compression_type = internal_info->m_compression_type;
+            m_filter_type = internal_info->m_filter_type;
             return true;
         }
 
+        PNG::ImageInfo::~ImageInfo() {
+            if (m_scanlines) {
+                if (m_scanlines[0])
+                    delete [] m_scanlines[0];
+                delete [] m_scanlines;
+            }
+        }
         void PNG::ImageInfo::destroy(PNG::ImageInfo** img_info)
         {
-            if (!*img_info)
+            if (img_info == nullptr)
                 return;
-            if ((*img_info)->scanlines && (*img_info)->scanlines[0])
-                delete[](*img_info)->scanlines[0];
-            delete[](*img_info)->scanlines;
             delete *img_info;
             *img_info = nullptr;
         }

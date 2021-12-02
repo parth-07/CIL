@@ -27,7 +27,7 @@ namespace CIL {
         {
             std::unique_ptr<uint8_t[]> data(this->data);
             const uint8_t sample_depth = 8;
-            const void* internal_info = this;
+            void* internal_info = this;
             CIL::ImageInfo cil_img_info(width, height, num_components,
                                         sample_depth,
                                         handleColorModel(color_model),
