@@ -22,8 +22,12 @@ namespace CIL {
         Pixel(ImageMatrix& image_matrix, uint32_t row, uint32_t col)
             : m_row(row), m_col(col), m_image_matrix(image_matrix)
         {}
+        bool operator==(Pixel& p2);
+        bool operator!=(Pixel& p2);
         Pixel operator++(int);
-        Pixel operator++();
+        Pixel& operator++();
+        Pixel operator--(int);
+        Pixel& operator--();
         void static swap(CIL::Pixel& p1, CIL::Pixel& p2);
     };
 } // namespace CIL

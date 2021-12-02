@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
         return 1;
     }
     auto image_info = CIL::readImage(argv[1]);
-    for (auto px = image_info(0, 0); !px.empty(); ++px)
+    for (auto px : image_info)
     {
         px[0] = 0; // set R component zero
     }

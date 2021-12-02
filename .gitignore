@@ -31,6 +31,8 @@ stamp-h1
 **/*.save
 **/*.swp
 **/*.rej
+**/*.plist
+*~
 
 # check unit tests files
 **/*.log

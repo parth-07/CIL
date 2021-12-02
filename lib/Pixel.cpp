@@ -25,6 +25,14 @@ namespace CIL {
         std::swap(p1.m_row, p2.m_row);
     }
 
+    bool Pixel::operator==(Pixel& p2)
+    {
+        return (m_row == p2.m_row && m_col == p2.m_col &&
+                &m_image_matrix == &p2.m_image_matrix);
+    }
+
+    bool Pixel::operator!=(Pixel& p2) { return !(*this == p2); }
+
     // post increment operator
     Pixel Pixel::operator++(int)
     {
@@ -34,7 +42,7 @@ namespace CIL {
     }
 
     // pre increment operator
-    Pixel Pixel::operator++()
+    Pixel& Pixel::operator++()
     {
         if (m_col + 1 > m_image_matrix.width())
         {
@@ -42,6 +50,25 @@ namespace CIL {
             m_col = 0;
         } else
             m_col++;
+        return *this;
+    }
+
+    Pixel Pixel::operator--(int)
+    {
+        Pixel temp = *this;
+        --(*this);
+        return temp;
+    }
+
+    Pixel& Pixel::operator--()
+    {
+        // remember: unsigned comparision
+        if (m_col - 1 > m_image_matrix.width())
+        {
+            m_row--;
+            m_col = m_image_matrix.width();
+        } else
+            m_col--;
         return *this;
     }
 
