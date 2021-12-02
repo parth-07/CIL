@@ -35,6 +35,8 @@ namespace CIL {
 
             /// Frees the `internal_info` pointer of `CIL::ImageInfo` object.
             static void destroy(const CIL::ImageInfo* cil_image_info);
+
+            static void* clone(void* internal_img_info);
         };
 
     } // namespace PNG

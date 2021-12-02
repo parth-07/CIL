@@ -129,10 +129,16 @@ namespace CIL {
 
         void PNGHandler::destroy(const CIL::ImageInfo* cil_image_info)
         {
-            auto ptr = const_cast<PNG::ImageInfo*>(
-                static_cast<const PNG::ImageInfo*>(
-                    cil_image_info->internalInfo()));
+            auto ptr = static_cast<PNG::ImageInfo*>(
+                (cil_image_info->internalInfo()));
             PNG::ImageInfo::destroy(&ptr);
+        }
+
+        void* PNGHandler::clone(void* internal_img_info)
+        {
+            auto png_img_info = static_cast<PNG::ImageInfo*>(internal_img_info);
+            auto new_png_img_info = new PNG::ImageInfo(*png_img_info);
+            return new_png_img_info;
         }
     } // namespace PNG
 } // namespace CIL

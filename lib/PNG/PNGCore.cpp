@@ -91,6 +91,26 @@ namespace CIL {
             m_rowbytes = png_get_rowbytes(lrd.png_ptr, lrd.info_ptr);
         }
 
+
+        PNG::ImageInfo::ImageInfo(const PNG::ImageInfo& other)
+            : m_width(other.m_width), m_height(other.m_height),
+              m_sample_depth(other.m_sample_depth),
+              m_rowbytes(other.m_rowbytes),
+              m_color_type(other.m_color_type),
+              m_num_channels(other.m_num_channels),
+              m_interlace_type(other.m_interlace_type),
+              m_compression_type(other.m_compression_type),
+              m_filter_type(other.m_filter_type)
+        {
+            m_scanlines = nullptr;
+            if (other.m_scanlines) {
+                m_scanlines = new png_bytep[m_height];
+                auto data = new png_byte[m_height * m_rowbytes];
+                std::memcpy(data, other.m_scanlines[0],
+                            sizeof(png_byte) * m_height * m_rowbytes);                            
+            }
+        }
+
         void ImageInfo::dumpImageHeaders() const
         {
             std::clog << "Dimensions: " << m_width << "x" << m_height << "\n";
