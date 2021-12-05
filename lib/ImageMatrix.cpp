@@ -9,8 +9,13 @@ namespace CIL {
                              int num_componenets, uint8_t sample_depth,
                              std::unique_ptr<uint8_t[]> data)
         : m_width(width), m_height(height), m_num_components(num_componenets),
-          m_sample_depth(sample_depth), m_data(std::move(data))
-    {}
+          m_sample_depth(sample_depth)
+    {
+        if (data != nullptr)
+            m_data = std::move(data);
+        else
+            m_data.reset(new uint8_t[m_height * rowbytes()]());
+    }
 
     ImageMatrix::ImageMatrix(const ImageMatrix& other) { *this = other; }
 

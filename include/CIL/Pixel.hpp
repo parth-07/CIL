@@ -28,6 +28,11 @@ namespace CIL {
         Pixel& operator++();
         Pixel operator--(int);
         Pixel& operator--();
+        void copyComponents(const Pixel& p2)
+        {
+            for (auto i = 0; i < numComponents(); i++)
+                (*this)[i] = p2[i];
+        }
         void static swap(CIL::Pixel& p1, CIL::Pixel& p2);
     };
 } // namespace CIL
