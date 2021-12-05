@@ -7,9 +7,9 @@ AM_CPPFLAGS += -I$(top_srcdir)/include
 
 lib_LTLIBRARIES = libcil.la
 
-libcil_la_SOURCES = lib/ImageInfo.cpp lib/ImageMatrix.cpp lib/Pixel.cpp
-libcil_la_CXXFLAGS =
-libcil_la_LDFLAGS =
+libcil_la_SOURCES = lib/ImageInfo.cpp lib/ImageMatrix.cpp lib/Pixel.cpp lib/Transformations.cpp
+libcil_la_CXXFLAGS = $(AM_CPPFLAGS)
+libcil_la_LDFLAGS = $(AM_CPPFLAGS)
 PKGLIBS =
 
 if JPEG
@@ -34,7 +34,7 @@ examplejpegdir = $(exampledir)/JPEG
 examplepngdir = $(exampledir)/PNG
 
 if JPEG
-examplejpeg_PROGRAMS = examples/JPEG/remove_red_from_rgb examples/JPEG/rgb_to_grayscale
+examplejpeg_PROGRAMS = examples/JPEG/remove_red_from_rgb examples/JPEG/rgb_to_grayscale examples/JPEG/invert
 dist_examplejpeg_DATA = examples/JPEG/in.jpg
 endif
 

@@ -1,4 +1,4 @@
-nobase_include_HEADERS = CIL/ImageInfo.hpp CIL/ImageMatrix.hpp CIL/Pixel.hpp
+nobase_include_HEADERS = CIL/ImageInfo.hpp CIL/ImageMatrix.hpp CIL/Pixel.hpp CIL/Transformations.hpp
 
 if JPEG
 nobase_include_HEADERS += CIL/JPEG/JPEGHandler.hpp
