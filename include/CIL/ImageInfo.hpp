@@ -67,7 +67,12 @@ namespace CIL {
         const uint8_t& operator()(uint32_t row, uint32_t col, int comp) const;
         void printImageInfo();
         bool empty() const;
-
+        void setData(const ImageMatrix& img_matrix) {
+          m_data = img_matrix;
+        }
+        void setData(ImageMatrix&& img_matrix) {
+          m_data = std::move(img_matrix);
+        }
       private:
         void* cloneInternalInfo() const;
         void destroyInternalInfo();

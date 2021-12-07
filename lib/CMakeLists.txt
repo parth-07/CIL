@@ -18,7 +18,7 @@ if(CIL_ENABLE_JPEG)
     add_subdirectory(JPEG)
 endif()
 
-target_include_directories(cil PUBLIC ${HEADERS})
+add_subdirectory(Core)
 
 install(TARGETS cil 
         LIBRARY DESTINATION lib

@@ -1,3 +1,4 @@
+#include <CIL/Core/DetachedFPPixel.hpp>
 #include <CIL/ImageMatrix.hpp>
 #include <CIL/Pixel.hpp>
 #include <cassert>
@@ -74,8 +75,18 @@ namespace CIL {
 
     bool Pixel::empty() const
     {
-        if (m_row > m_image_matrix.height() || m_col > m_image_matrix.width())
+        if (m_row >= m_image_matrix.height() || m_col >= m_image_matrix.width())
             return true;
         return false;
+    }
+
+    Pixel& Pixel::operator=(const DetachedFPPixel& dpx)
+    {
+        assert(numComponents() == dpx.numComponents());
+        for (int i = 0; i < numComponents(); ++i)
+        {
+            (*this)[i] = dpx[i];
+        }
+        return *this;
     }
 } // namespace CIL

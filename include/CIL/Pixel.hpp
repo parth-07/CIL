@@ -4,6 +4,7 @@
 
 namespace CIL {
     class ImageMatrix;
+    class DetachedFPPixel;
     class Pixel
     {
         uint32_t m_row, m_col;
@@ -34,6 +35,7 @@ namespace CIL {
                 (*this)[i] = p2[i];
         }
         void static swap(CIL::Pixel& p1, CIL::Pixel& p2);
+        Pixel& operator=(const DetachedFPPixel& dpx);
     };
 } // namespace CIL
 

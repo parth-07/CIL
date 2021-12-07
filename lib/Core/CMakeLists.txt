@@ -1,0 +1,1 @@
+target_sources(cil PUBLIC Coordinate.cpp DetachedFPPixel.cpp Utils.cpp)
