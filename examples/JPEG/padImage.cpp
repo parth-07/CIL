@@ -1,5 +1,4 @@
 #include <CIL/ImageInfo.hpp>
-#include <CIL/JPEG/JPEGHandler.hpp>
 #include <CIL/Transformations.hpp>
 
 int main(int argc, char* argv[])
@@ -10,10 +9,9 @@ int main(int argc, char* argv[])
         return 1;
     }
     auto img_info = CIL::readImage(argv[1]);
-    for (auto px : img_info)
-    {
-        px[0] = 0; // set R component zero
-    }
+    CIL::Dimensions dims(10);
+    img_info.printImageInfo();
+    CIL::padImage(img_info, dims);
     img_info.save(argv[2]);
     return 0;
 }

@@ -7,7 +7,9 @@ AM_CPPFLAGS += -I$(top_srcdir)/include
 
 lib_LTLIBRARIES = libcil.la
 
-libcil_la_SOURCES = lib/ImageInfo.cpp lib/ImageMatrix.cpp lib/Pixel.cpp lib/Transformations.cpp lib/Core/Coordinate.cpp lib/Core/DetachedFPPixel.cpp lib/Core/Utils.cpp
+libcil_la_SOURCES = lib/ImageInfo.cpp lib/ImageMatrix.cpp lib/Pixel.cpp lib/Transformations.cpp \
+					lib/Core/Coordinate.cpp lib/Core/DetachedFPPixel.cpp lib/Core/Utils.cpp
+
 libcil_la_CXXFLAGS = $(AM_CPPFLAGS)
 libcil_la_LDFLAGS = $(AM_CPPFLAGS)
 PKGLIBS =
@@ -34,12 +36,13 @@ examplejpegdir = $(exampledir)/JPEG
 examplepngdir = $(exampledir)/PNG
 
 if JPEG
-examplejpeg_PROGRAMS = examples/JPEG/remove_red_from_rgb examples/JPEG/rgb_to_grayscale examples/JPEG/invert
+examplejpeg_PROGRAMS = examples/JPEG/remove_red_from_rgb examples/JPEG/rgb_to_grayscale examples/JPEG/invert \
+					   examples/JPEG/padImage examples/JPEG/edgeDetection
 dist_examplejpeg_DATA = examples/JPEG/in.jpg
 endif
 
 if PNG
-examplepng_PROGRAMS = examples/PNG/noRedFilter examples/PNG/flipImage examples/PNG/rotateImage
+examplepng_PROGRAMS = examples/PNG/noRedFilter examples/PNG/flipImage examples/PNG/rotateImage examples/PNG/blur
 dist_examplepng_DATA = examples/PNG/in.png
 endif
 

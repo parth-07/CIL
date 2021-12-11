@@ -1,8 +1,11 @@
 #include <CIL/Core/Coordinate.hpp>
+#include <CIL/Core/Debug.hpp>
 #include <CIL/Core/DetachedFPPixel.hpp>
+#include <CIL/Core/Types.hpp>
 #include <CIL/Core/Utils.hpp>
 #include <CIL/ImageInfo.hpp>
 #include <CIL/Transformations.hpp>
+#include <cassert>
 #include <cmath>
 #include <limits>
 
@@ -24,15 +27,109 @@ namespace CIL {
         ImageMatrix new_img(new_width, new_height, img.numComponents(),
                             img.sampleDepth());
 
-        ImageMatrix::iterator it = img.begin();
-        const auto endpx = new_img(new_img.height() - dims.bottom,
-                                   new_img.width() - dims.right);
-
-        for (ImageMatrix::iterator px = new_img(dims.top, dims.left);
-             px != endpx && it != img.end(); px++, it++)
+        Pixel px1 = new_img(dims.top, dims.left);
+        px1.setBounds(dims);
+        for (auto px2 : img)
         {
-            px->copyComponents(*it);
+            px1.copyComponents(px2);
+            ++px1;
         }
+        img.setData(new_img);
+    }
+
+    static void createGaussianFilter(Sequence<double>& GKernel, int size)
+    {
+        // initialising standard deviation value to the size of kernel
+        // to increase blur effect
+        double sigma = size;
+        double r, s = 2.0 * sigma * sigma;
+
+        // sum is for normalization
+        double sum = 0.0;
+
+        GKernel.resize(size);
+        const int temp = size / 2;
+        // generating 5x5 kernel
+        for (int x = -temp; x <= temp; x++)
+        {
+            GKernel[x + temp].resize(size);
+            for (int y = -temp; y <= temp; y++)
+            {
+                r = sqrt(x * x + y * y);
+                GKernel[x + temp][y + temp] = (exp(-(r * r) / s)) /
+                                              (utils::pi * s);
+                sum += GKernel[x + temp][y + temp];
+            }
+        }
+
+        // normalising the Kernel
+        for (auto i = 0U; i < GKernel.size(); ++i)
+            for (auto j = 0U; j < GKernel[0].size(); ++j)
+                GKernel[i][j] /= sum;
+    }
+
+    struct Kernel
+    {
+        const Sequence<double> matrix;
+        const KernelType kernel_type;
+
+        Kernel(const KernelType kernel_type, const Sequence<double>& matrix)
+            : matrix(matrix), kernel_type(kernel_type)
+        {}
+        static Kernel get(const KernelType& kernel_type, int size = 3)
+        {
+            if (size == 0)
+                assert("size can't be zero");
+
+            switch (kernel_type)
+            {
+                case KernelType::BOX_BLUR:
+                {
+                    Sequence<double> matrix;
+                    matrix.resize(size);
+                    for (int i = 0; i < size; i++)
+                    {
+                        matrix[i].resize(size, 1.00);
+                    }
+                    utils::multiplyConstantToSequence(matrix,
+                                                      1.00 / size * size);
+                    return Kernel(kernel_type, matrix);
+                }
+                case KernelType::GAUSSIAN_BLUR:
+                {
+                    Sequence<double> matrix;
+                    createGaussianFilter(matrix, size);
+                    return Kernel(kernel_type, matrix);
+                }
+                case KernelType::EDGE_DETECTION:
+                {
+                    // TODO: need to find algorithm to expand it's size to
+                    // different ones
+                    Sequence<double> matrix{{-1, -1, -1},
+                                            {-1, 8, -1},
+                                            {-1, -1, -1}};
+                    return Kernel(kernel_type, matrix);
+                }
+                default:
+                {
+                    assert(false);
+                }
+            }
+        }
+    };
+
+    void applyKernel(ImageInfo& img, KernelType kernel_type, int size)
+    {
+        assert((size & 1) && "only odd sized kernels allowed");
+
+        Kernel k = Kernel::get(kernel_type, size);
+
+        // pad the image to get the output image of same size as input image
+        padImage(img, Dimensions((k.matrix.size() - 1) / 2));
+
+        ImageMatrix matrix = img.getData();
+        matrix.convolute(k.matrix);
+        img.setData(matrix);
     }
 
     static double computeOverlappingArea(Pixel px, Coordinate S)
@@ -70,7 +167,7 @@ namespace CIL {
                                    img(i + 1, j)};
                 for (auto neighbour : neighbours)
                 {
-                    if (neighbour.empty())
+                    if (!neighbour.isValid())
                         continue;
 
                     auto wt = computeOverlappingArea(neighbour, source);
@@ -81,8 +178,9 @@ namespace CIL {
             {
                 auto source_pixel = img(std::lround(source.y),
                                         std::lround(source.x));
-                if (source_pixel.empty())
+                if (!source_pixel.isValid())
                     continue;
+
                 for (auto i = 0; i < px.numComponents(); ++i)
                 {
                     px[i] = source_pixel[i];
@@ -91,4 +189,5 @@ namespace CIL {
         }
         img.setData(tf_img_data);
     }
+
 } // namespace CIL

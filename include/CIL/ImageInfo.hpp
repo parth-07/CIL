@@ -46,33 +46,42 @@ namespace CIL {
                   uint32_t sample_depth, ColorModel color_model,
                   ImageType image_type, std::unique_ptr<uint8_t[]> data,
                   void* internal_info = nullptr);
+
+        ~ImageInfo();
+
         ImageInfo(const ImageInfo&);
         ImageInfo& operator=(const ImageInfo&);
         ImageInfo(ImageInfo&&);
         ImageInfo& operator=(ImageInfo&&);
-        ~ImageInfo();
+
         uint32_t width() const;
         uint32_t height() const;
         uint32_t numComponents() const;
         uint32_t sampleDepth() const;
         uint64_t size() const;
+        uint32_t rowbytes() const { return m_data.rowbytes(); }
+        ImageMatrix getData() const { return m_data; }
         void* internalInfo() const;
         ColorModel colorModel() const;
+        bool empty() const;
+
         void setColorModel(ColorModel color_model);
-        bool save(const std::string& filename) const;
+        void setData(const ImageMatrix& img_matrix) { m_data = img_matrix; }
+        void setData(ImageMatrix&& img_matrix)
+        {
+            m_data = std::move(img_matrix);
+        }
+
         ImageMatrix::iterator begin() { return m_data.begin(); }
         ImageMatrix::iterator end() { return m_data.end(); }
+
         Pixel operator()(uint32_t row, uint32_t col);
         uint8_t& operator()(uint32_t row, uint32_t col, int comp);
         const uint8_t& operator()(uint32_t row, uint32_t col, int comp) const;
+
         void printImageInfo();
-        bool empty() const;
-        void setData(const ImageMatrix& img_matrix) {
-          m_data = img_matrix;
-        }
-        void setData(ImageMatrix&& img_matrix) {
-          m_data = std::move(img_matrix);
-        }
+        bool save(const std::string& filename) const;
+
       private:
         void* cloneInternalInfo() const;
         void destroyInternalInfo();

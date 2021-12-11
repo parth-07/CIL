@@ -211,7 +211,7 @@ namespace CIL {
             m_num_channels = static_cast<png_byte>(
                 cil_img_info->numComponents());
             m_sample_depth = static_cast<png_byte>(cil_img_info->sampleDepth());
-            m_rowbytes = internal_info->m_rowbytes;
+            m_rowbytes = cil_img_info->rowbytes();
 
             m_scanlines = new png_bytep[m_height];
             auto data = new png_byte[m_height * m_rowbytes];

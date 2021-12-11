@@ -1,9 +1,11 @@
+#include <CIL/Core/Debug.hpp>
+#include <CIL/Core/Types.hpp>
 #include <CIL/Core/Utils.hpp>
 #include <cmath>
 
 namespace CIL {
     namespace utils {
-        static const double pi = std::atan(1.0) * 4;
+        const double pi = std::atan(1.0) * 4;
 
         double convertDegreesToRadians(double degrees)
         {
@@ -25,5 +27,14 @@ namespace CIL {
             Coordinate Q(relative_Q.x + origin.x, -(relative_Q.y + origin.y));
             return Q;
         }
+
+        void multiplyConstantToSequence(Sequence<double>& matrix,
+                                        double constant)
+        {
+            for (auto i = 0U; i < matrix.size(); i++)
+                for (auto j = 0U; j < matrix[i].size(); j++)
+                    matrix[i][j] *= constant;
+        }
+
     } // namespace utils
 } // namespace CIL

@@ -1,3 +1,5 @@
+#include <CIL/Core/Debug.hpp>
+#include <CIL/Core/DetachedFPPixel.hpp>
 #include <CIL/ImageMatrix.hpp>
 #include <CIL/Pixel.hpp>
 #include <cassert>
@@ -45,13 +47,15 @@ namespace CIL {
         return *this;
     }
 
+    uint32_t ImageMatrix::width() const { return m_width; }
+    uint32_t ImageMatrix::height() const { return m_height; }
+    int ImageMatrix::numComponents() const { return m_num_components; }
+    uint32_t ImageMatrix::sampleDepth() const { return m_sample_depth; }
+    bool ImageMatrix::empty() const { return m_width == 0 || m_height == 0; }
+
     uint32_t ImageMatrix::rowbytes() const
     {
-        static uint32_t rowbytes = 0;
-        if (rowbytes)
-        {
-            return rowbytes;
-        }
+        uint32_t rowbytes = 0;
         rowbytes = m_width * m_num_components;
         if (m_sample_depth == 16)
             rowbytes *= 2;
@@ -60,10 +64,6 @@ namespace CIL {
         return rowbytes;
     }
 
-    uint32_t ImageMatrix::width() const { return m_width; }
-    uint32_t ImageMatrix::height() const { return m_height; }
-    int ImageMatrix::numComponents() const { return m_num_components; }
-    uint32_t ImageMatrix::sampleDepth() const { return m_sample_depth; }
     Pixel ImageMatrix::operator()(uint32_t row, uint32_t col)
     {
         return Pixel(*this, row, col);
@@ -88,5 +88,37 @@ namespace CIL {
         return m_data[row * rowbytes() + col * m_num_components + comp];
     }
 
-    bool ImageMatrix::empty() const { return m_width == 0 || m_height == 0; }
+    void ImageMatrix::convolute(const Sequence<double>& v)
+    {
+        auto new_img = ImageMatrix(width() - v[0].size() + 1,
+                                   height() - v.size() + 1, numComponents(),
+                                   sampleDepth());
+        for (auto px : *this)
+        {
+            px.setBounds(
+                Dimensions(this, {0, 0}, new_img.width(), new_img.height()));
+            if (!px.isValid())
+                continue;
+
+            auto boundedPx = px;
+            boundedPx.setBounds(
+                Dimensions(this, {px.row(), px.col()}, v[0].size(), v.size()));
+
+            DetachedFPPixel dePx(new_img(px.row(), px.col()));
+
+            for (auto i = 0U; i < v.size(); i++)
+                for (auto j = 0U; j < v[i].size(); j++)
+                {
+                    for (int comp = 0; comp < px.numComponents(); comp++)
+                    {
+                        dePx[comp] += static_cast<double>(boundedPx[comp]) *
+                                      v[i][j];
+                    }
+                    boundedPx++;
+                }
+
+            new_img(px.row(), px.col()) = dePx;
+        }
+        *this = new_img;
+    }
 } // namespace CIL

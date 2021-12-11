@@ -1,13 +1,18 @@
 #ifndef CIL_TRANFORMATIONS_HPP
 #define CIL_TRANFORMATIONS_HPP
 #include <cstdint>
+#include <map>
 namespace CIL {
     class ImageInfo;
-    struct Dimensions
+    class ImageMatrix;
+    struct Dimensions;
+    enum class KernelType
     {
-        uint32_t top = 0, bottom = 0, left = 0, right = 0;
-        Dimensions(uint32_t pad_all) { top = bottom = left = right = pad_all; }
+        BOX_BLUR,
+        GAUSSIAN_BLUR,
+        EDGE_DETECTION
     };
+
     enum class RotationKind
     {
         rotation_by_sampling,
@@ -16,6 +21,7 @@ namespace CIL {
 
     void invertColor(ImageInfo&);
     void padImage(ImageInfo& img, const Dimensions& dims);
+    void applyKernel(ImageInfo& img, KernelType kernel_type, int size = 3);
     void
     rotate(ImageInfo& img, int degrees,
            RotationKind rotation_kind = RotationKind::rotation_by_area_mapping);
