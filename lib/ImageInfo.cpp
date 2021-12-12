@@ -169,4 +169,10 @@ namespace CIL {
     }
 
     bool ImageInfo::empty() const { return m_data.empty(); }
+
+    bool ImageInfo::hasAlphaComponent() const
+    {
+        return m_color_model == ColorModel::COLOR_GRAY_ALPHA ||
+               m_color_model == ColorModel::COLOR_RGBA;
+    }
 } // namespace CIL

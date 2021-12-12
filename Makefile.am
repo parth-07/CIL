@@ -36,13 +36,12 @@ examplejpegdir = $(exampledir)/JPEG
 examplepngdir = $(exampledir)/PNG
 
 if JPEG
-examplejpeg_PROGRAMS = examples/JPEG/remove_red_from_rgb examples/JPEG/rgb_to_grayscale examples/JPEG/invert \
-					   examples/JPEG/padImage examples/JPEG/edgeDetection
+examplejpeg_PROGRAMS = examples/JPEG/remove_red_from_rgb examples/JPEG/invert examples/JPEG/padImage examples/JPEG/edgeDetection
 dist_examplejpeg_DATA = examples/JPEG/in.jpg
 endif
 
 if PNG
-examplepng_PROGRAMS = examples/PNG/noRedFilter examples/PNG/flipImage examples/PNG/rotateImage examples/PNG/blur
+examplepng_PROGRAMS = examples/PNG/noRedFilter examples/PNG/flipImage examples/PNG/rotateImage examples/PNG/blur examples/PNG/grayscale
 dist_examplepng_DATA = examples/PNG/in.png
 endif
 

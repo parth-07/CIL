@@ -25,5 +25,6 @@ namespace CIL {
     void
     rotate(ImageInfo& img, int degrees,
            RotationKind rotation_kind = RotationKind::rotation_by_area_mapping);
+    void convertToGrayscale(ImageInfo& img);           
 } // namespace CIL
 #endif

@@ -81,7 +81,7 @@ namespace CIL {
 
         void printImageInfo();
         bool save(const std::string& filename) const;
-
+        bool hasAlphaComponent() const;
       private:
         void* cloneInternalInfo() const;
         void destroyInternalInfo();

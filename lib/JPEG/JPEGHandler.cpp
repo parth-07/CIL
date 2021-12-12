@@ -100,9 +100,14 @@ namespace CIL {
             cinfo.image_width = image_info->width();
             cinfo.image_height = image_info->height();
             cinfo.input_components = image_info->numComponents();
-            cinfo.in_color_space = static_cast<JPEG::ImageInfo*>(
-                                       cil_image_info->internalInfo())
-                                       ->colorType();
+            if (cil_image_info->colorModel() != ColorModel::COLOR_GRAY)
+            {
+                cinfo.in_color_space = static_cast<JPEG::ImageInfo*>(
+                                           cil_image_info->internalInfo())
+                                           ->colorType();
+            } else {
+                cinfo.in_color_space = JCS_GRAYSCALE;
+            }
 
             jpeg_set_defaults(&cinfo);
             jpeg_set_colorspace(&cinfo, image_info->colorType());

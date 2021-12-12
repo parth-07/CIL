@@ -190,4 +190,31 @@ namespace CIL {
         img.setData(tf_img_data);
     }
 
+    void convertToGrayscale(ImageInfo& img)
+    {
+        if (img.colorModel() == ColorModel::COLOR_GRAY ||
+            img.colorModel() == ColorModel::COLOR_GRAY_ALPHA)
+            return;
+        ImageMatrix new_img_data(img.width(), img.height(),
+                                 1 + img.hasAlphaComponent(),
+                                 img.sampleDepth());
+        for (auto px : new_img_data)
+        {
+            DetachedFPPixel dpx = img(px.row(), px.col());
+            dpx.scale({0.299, 0.587, 0.114});
+            if (img.hasAlphaComponent())
+            {
+                px[0] = static_cast<int>(std::lround(dpx.sum() - dpx[3]));
+                px[1] = dpx[3];
+            } else
+            {
+                px[0] = static_cast<int>(std::lround(dpx.sum()));
+            }
+        }
+        if (img.hasAlphaComponent())
+            img.setColorModel(ColorModel::COLOR_GRAY_ALPHA);
+        else
+            img.setColorModel(ColorModel::COLOR_GRAY);
+        img.setData(new_img_data);
+    }
 } // namespace CIL

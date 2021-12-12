@@ -1,5 +1,7 @@
 #include <CIL/Core/DetachedFPPixel.hpp>
 #include <CIL/Pixel.hpp>
+#include <algorithm>
+#include <numeric>
 
 namespace CIL {
     DetachedFPPixel::DetachedFPPixel(const Pixel& px)
@@ -30,5 +32,20 @@ namespace CIL {
             lhs[i] += rhs[i];
         }
         return lhs;
+    }
+
+    void DetachedFPPixel::scale(const std::vector<ValueType> multipliers)
+    {
+        for (auto i = 0U; i < std::min(multipliers.size(), m_components.size());
+             ++i)
+        {
+            m_components[i] *= multipliers[i];
+        }
+    }
+
+    DetachedFPPixel::ValueType DetachedFPPixel::sum() const
+    {
+        return std::accumulate(m_components.begin(), m_components.end(),
+                               ValueType());
     }
 } // namespace CIL

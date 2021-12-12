@@ -8,9 +8,13 @@ namespace CIL {
     class Pixel;
     class DetachedFPPixel
     {
-
       public:
         using ValueType = double;
+
+      private:
+        std::vector<ValueType> m_components;
+
+      public:
         DetachedFPPixel(int num_of_componenets)
             : m_components(num_of_componenets, 0)
         {}
@@ -21,9 +25,9 @@ namespace CIL {
         ValueType& operator[](int idx) { return m_components[idx]; }
         const ValueType& operator[](int idx) const { return m_components[idx]; }
         int32_t numComponents() const { return m_components.size(); }
+        ValueType sum() const;
+        void scale(const std::vector<ValueType> multipliers);
 
-      private:
-        std::vector<ValueType> m_components;
     };
 
     DetachedFPPixel operator*(double scale, const DetachedFPPixel& dpx);
