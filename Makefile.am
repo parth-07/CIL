@@ -8,7 +8,7 @@ AM_CPPFLAGS += -I$(top_srcdir)/include
 lib_LTLIBRARIES = libcil.la
 
 libcil_la_SOURCES = lib/ImageInfo.cpp lib/ImageMatrix.cpp lib/Pixel.cpp lib/Transformations.cpp \
-					lib/Core/Coordinate.cpp lib/Core/DetachedFPPixel.cpp lib/Core/Utils.cpp
+					lib/Core/Coordinate.cpp lib/Core/DetachedFPPixel.cpp lib/Core/Utils.cpp lib/PPM/PPMHandler.cpp
 
 libcil_la_CXXFLAGS = $(AM_CPPFLAGS)
 libcil_la_LDFLAGS = $(AM_CPPFLAGS)
@@ -34,6 +34,8 @@ LDADD = $(top_builddir)/libcil.la
 exampledir = $(prefix)/examples
 examplejpegdir = $(exampledir)/JPEG
 examplepngdir = $(exampledir)/PNG
+
+dist_example_DATA = examples/scenary.ppm
 
 if JPEG
 examplejpeg_PROGRAMS = examples/JPEG/remove_red_from_rgb examples/JPEG/invert examples/JPEG/padImage examples/JPEG/edgeDetection examples/JPEG/resize

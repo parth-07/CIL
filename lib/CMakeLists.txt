@@ -10,6 +10,8 @@ if (CIL_ENABLE_PNG)
     target_compile_definitions(cil PRIVATE CIL_PNG_ENABLED)
 endif()
 
+add_subdirectory(PPM)
+
 if(CIL_ENABLE_PNG)
     add_subdirectory(PNG)
 endif()

@@ -46,7 +46,15 @@ namespace CIL {
                   uint32_t sample_depth, ColorModel color_model,
                   ImageType image_type, std::unique_ptr<uint8_t[]> data,
                   void* internal_info = nullptr);
-
+        ImageInfo(ColorModel color_model, ImageType image_type,
+                  const ImageMatrix& data)
+            : m_color_model(color_model), m_image_type(image_type), m_data(data)
+        {}
+        ImageInfo(ColorModel color_model, ImageType image_type,
+                  ImageMatrix&& data)
+            : m_color_model(color_model), m_image_type(image_type),
+              m_data(std::move(data))
+        {}
         ~ImageInfo();
 
         ImageInfo(const ImageInfo&);
@@ -82,6 +90,7 @@ namespace CIL {
         void printImageInfo();
         bool save(const std::string& filename) const;
         bool hasAlphaComponent() const;
+
       private:
         void* cloneInternalInfo() const;
         void destroyInternalInfo();

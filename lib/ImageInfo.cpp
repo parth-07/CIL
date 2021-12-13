@@ -5,7 +5,7 @@
 #ifdef CIL_PNG_ENABLED
 #include <CIL/PNG/PNGHandler.hpp>
 #endif
-
+#include <CIL/PPM/PPMHandler.hpp>
 namespace CIL {
     ImageInfo::ImageInfo(uint32_t width, uint32_t height,
                          uint32_t num_components, uint32_t sample_depth,
@@ -109,6 +109,8 @@ namespace CIL {
         return m_data(row, col, comp);
     }
 
+    PPMHandler ppm_handler;
+
     CIL::ImageInfo readImage(const char* filename)
     {
 #ifdef CIL_PNG_ENABLED
@@ -123,6 +125,10 @@ namespace CIL {
             return JPEG::JPEGHandler::read(filename);
         }
 #endif
+        if (ppm_handler.isValidFile(filename))
+        {
+            return ppm_handler.read(filename);
+        }
         return ImageInfo();
     }
 
@@ -145,7 +151,7 @@ namespace CIL {
                 return JPEG::JPEGHandler::write(this, filename.c_str());
 #endif
                 break;
-            case ImageType::PPM: break;
+            case ImageType::PPM: return ppm_handler.write(*this, filename);
         }
         return false;
     }
