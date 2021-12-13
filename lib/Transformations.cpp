@@ -132,19 +132,6 @@ namespace CIL {
         img.setData(matrix);
     }
 
-    static double computeOverlappingArea(Pixel px, Coordinate S)
-    {
-        double left = 0, right = 0, up = 0, down = 0;
-        left = std::max(static_cast<double>(px.col()), S.x - 0.5);
-        right = std::min(static_cast<double>(px.col() + 1), S.x + 0.5);
-        up = std::max(static_cast<double>(px.row()), S.y - 0.5);
-        down = std::min(static_cast<double>(px.row() + 1), S.y + 0.5);
-        if (left > right || up > down)
-            return 0;
-        double res = (right - left) * (down - up);
-        return res;
-    }
-
     // TODO: Add `preserve_image` parameter.
     void rotate(ImageInfo& img, int degrees, RotationKind rotation_kind)
     {
@@ -160,20 +147,7 @@ namespace CIL {
                                                                 -degrees);
             if (rotation_kind == RotationKind::rotation_by_area_mapping)
             {
-                DetachedFPPixel dpx(px.numComponents());
-                uint32_t i = std::floor(source.y - 0.5);
-                uint32_t j = std::floor(source.x - 0.5);
-                auto neighbours = {img(i, j), img(i, j + 1), img(i + 1, j + 1),
-                                   img(i + 1, j)};
-                for (auto neighbour : neighbours)
-                {
-                    if (!neighbour.isValid())
-                        continue;
-
-                    auto wt = computeOverlappingArea(neighbour, source);
-                    dpx += wt * DetachedFPPixel(neighbour);
-                }
-                px = dpx;
+                px = utils::bilinearInterpolation(img, source);
             } else if (rotation_kind == RotationKind::rotation_by_sampling)
             {
                 auto source_pixel = img(std::lround(source.y),
@@ -216,5 +190,35 @@ namespace CIL {
         else
             img.setColorModel(ColorModel::COLOR_GRAY);
         img.setData(new_img_data);
+    }
+
+    void resize(ImageInfo& img, uint32_t new_width, uint32_t new_height,
+                ResizeAlgorithm resize_algorithm)
+    {
+        double scale_x = (new_width * 1.00) / img.width();
+        double scale_y = (new_height * 1.00) / img.height();
+
+        ImageMatrix new_image_data(new_width, new_height, img.numComponents(),
+                                   img.sampleDepth());
+
+        for (auto px : new_image_data)
+        {
+            Coordinate source = {px.col() / scale_x, px.row() / scale_y};
+            switch (resize_algorithm)
+            {
+                case ResizeAlgorithm::nearest_neighbour_interpolation:
+                {
+                    auto old_px = img(source.getNearestIntegralY(),
+                                      source.getNearestIntegralX());
+                    if (old_px.isValid())
+                        px.copyComponents(old_px);
+                    break;
+                }
+                case ResizeAlgorithm::bilinear_interpolation:
+                    px = utils::bilinearInterpolation(img, source);
+                    break;
+            }
+        }
+        img.setData(new_image_data);
     }
 } // namespace CIL

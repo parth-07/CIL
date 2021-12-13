@@ -36,7 +36,7 @@ examplejpegdir = $(exampledir)/JPEG
 examplepngdir = $(exampledir)/PNG
 
 if JPEG
-examplejpeg_PROGRAMS = examples/JPEG/remove_red_from_rgb examples/JPEG/invert examples/JPEG/padImage examples/JPEG/edgeDetection
+examplejpeg_PROGRAMS = examples/JPEG/remove_red_from_rgb examples/JPEG/invert examples/JPEG/padImage examples/JPEG/edgeDetection examples/JPEG/resize
 dist_examplejpeg_DATA = examples/JPEG/in.jpg
 endif
 

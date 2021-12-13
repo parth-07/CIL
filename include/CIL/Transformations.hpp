@@ -19,12 +19,21 @@ namespace CIL {
         rotation_by_area_mapping
     };
 
+    enum class ResizeAlgorithm
+    {
+        nearest_neighbour_interpolation,
+        bilinear_interpolation
+    };
+
     void invertColor(ImageInfo&);
     void padImage(ImageInfo& img, const Dimensions& dims);
     void applyKernel(ImageInfo& img, KernelType kernel_type, int size = 3);
     void
     rotate(ImageInfo& img, int degrees,
            RotationKind rotation_kind = RotationKind::rotation_by_area_mapping);
-    void convertToGrayscale(ImageInfo& img);           
+    void convertToGrayscale(ImageInfo& img);
+    void resize(ImageInfo& img, uint32_t new_width, uint32_t new_height,
+                ResizeAlgorithm resize_algorithm =
+                    ResizeAlgorithm::bilinear_interpolation);
 } // namespace CIL
 #endif

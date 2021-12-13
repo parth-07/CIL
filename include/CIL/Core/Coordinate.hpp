@@ -5,8 +5,11 @@ namespace CIL {
 
     struct Coordinate
     {
-        double x, y;
-        Coordinate(double p_x = 0, double p_y = 0) : x(p_x), y(p_y) {}
+        using ValueType = double;
+        ValueType x, y;
+        Coordinate(ValueType p_x = 0, ValueType p_y = 0) : x(p_x), y(p_y) {}
+        int getNearestIntegralX() const;
+        int getNearestIntegralY() const;
     };
 
     Coordinate operator-(const Coordinate& a, const Coordinate& b);
