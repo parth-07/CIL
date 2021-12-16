@@ -38,8 +38,7 @@ namespace CIL {
         if (!f.is_open())
             return false;
         f << magic_bytes.c_str() << "\n";
-        f << img.width() << "\n";
-        f << img.height() << "\n";
+        f << img.width() << ' ' << img.height() << "\n";
         f << 255 << "\n";
         f.write(reinterpret_cast<const char*>(&img(0, 0, 0)),
                 sizeof(uint8_t) * img.width() * img.height() *

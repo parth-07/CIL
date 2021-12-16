@@ -74,6 +74,7 @@ namespace CIL {
         bool empty() const;
 
         void setColorModel(ColorModel color_model);
+        void setImageType(ImageType image_type) { m_image_type = image_type; }
         void setData(const ImageMatrix& img_matrix) { m_data = img_matrix; }
         void setData(ImageMatrix&& img_matrix)
         {

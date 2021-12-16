@@ -7,7 +7,7 @@ endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DESTINATION ${CMAKE_INSTALL_PREFIX}
-        FILES_MATCHING REGEX ".*\.(jpeg|jpg|png)")
+        FILES_MATCHING REGEX ".*\.(jpeg|jpg|png|ppm)")
 
 if (CIL_ENABLE_PNG)
     list(APPEND CMAKE_BUILD_RPATH ${LIBPNG_LIBRARY_DIRS})
@@ -19,10 +19,15 @@ if (CIL_ENABLE_JPEG)
     list(APPEND CMAKE_INSTALL_RPATH ${${ACTIVE_JPEG_LIB}_LIBRARY_DIRS})
 endif()
 
-if (CIL_ENABLE_PNG)
-    add_subdirectory(PNG)
-endif()
+file(GLOB
+     example_files
+     LIST_DIRECTORIES false
+     CONFIGURE_DEPENDS
+     *.cpp)
 
-if (CIL_ENABLE_JPEG)
-    add_subdirectory(JPEG)
-endif()
+foreach(example_file IN LISTS example_files)
+    get_filename_component(example ${example_file} NAME_WE)
+    add_executable(${example} ${example_file})
+    install(TARGETS ${example}
+            DESTINATION examples)
+endforeach()

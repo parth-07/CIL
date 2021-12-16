@@ -19,6 +19,27 @@ namespace CIL {
         }
     }
 
+    void cropImage(ImageInfo& img, const Dimensions& dims)
+    {
+        auto px1 = img(0, 0);
+        px1.setBounds(dims);
+        px1.init();
+
+        auto new_width = img.width() - dims.left - dims.right;
+        auto new_height = img.height() - dims.top - dims.bottom;
+
+        ImageMatrix new_img(new_width, new_height, img.numComponents(),
+                            img.sampleDepth());
+        for (auto px2 : new_img)
+
+        {
+            px2.copyComponents(px1);
+            px1++;
+        }
+        assert(!px1.isValid() && "px1 didn't reach end");
+        img.setData(new_img);
+    }
+
     void padImage(ImageInfo& img, const Dimensions& dims)
     {
         auto new_width = img.width() + dims.left + dims.right;

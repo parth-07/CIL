@@ -19,6 +19,11 @@ namespace CIL {
                      ? img_info->height()
                      : img_info->height() - (top + height);
     }
+    void Pixel::init()
+    {
+        m_row = m_bounds.top;
+        m_col = m_bounds.left;
+    }
 
     uint8_t& Pixel::operator[](int comp)
     {

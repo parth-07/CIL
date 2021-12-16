@@ -9,6 +9,7 @@
 namespace CIL {
     class ImageMatrix;
     class DetachedFPPixel;
+    class Pixel;
 
     struct Dimensions
     {
@@ -63,6 +64,12 @@ namespace CIL {
         // TODO: improve design
         Dimensions getBounds() const { return m_bounds; }
         void setBounds(Dimensions dims) { m_bounds = dims; }
+        void setBounds(std::pair<uint32_t, uint32_t> origin, uint32_t length,
+                       uint32_t breadth)
+        {
+            m_bounds = Dimensions(m_image_matrix, origin, length, breadth);
+        }
+        void init();
 
         void copyComponents(const Pixel& p2)
         {

@@ -26,6 +26,7 @@ namespace CIL {
     };
 
     void invertColor(ImageInfo&);
+    void cropImage(ImageInfo& img, const Dimensions& dims);
     void padImage(ImageInfo& img, const Dimensions& dims);
     void applyKernel(ImageInfo& img, KernelType kernel_type, int size = 3);
     void
