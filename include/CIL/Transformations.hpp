@@ -13,6 +13,12 @@ namespace CIL {
         EDGE_DETECTION
     };
 
+    enum class Axis
+    {
+        X,
+        Y
+    };
+
     enum class RotationKind
     {
         rotation_by_sampling,
@@ -26,6 +32,7 @@ namespace CIL {
     };
 
     void invertColor(ImageInfo&);
+    void flipImage(ImageInfo& img, const Axis axis);
     void cropImage(ImageInfo& img, const Dimensions& dims);
     void padImage(ImageInfo& img, const Dimensions& dims);
     void applyKernel(ImageInfo& img, KernelType kernel_type, int size = 3);

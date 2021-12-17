@@ -19,6 +19,37 @@ namespace CIL {
         }
     }
 
+    void flipImage(ImageInfo& img, const Axis axis)
+    {
+        uint32_t outer, inner;
+        if (axis == Axis::Y)
+        {
+            outer = img.height();
+            inner = img.width() / 2;
+        } else
+        {
+            outer = img.width();
+            inner = img.height() / 2;
+        }
+        for (uint32_t i = 0; i < outer; i++)
+        {
+            for (uint32_t j = 0; j < inner; j++)
+            {
+                Pixel px1, px2;
+                if (axis == Axis::Y)
+                {
+                    px1 = img(i, j);
+                    px2 = img(i, img.width() - j - 1);
+                } else
+                {
+                    px1 = img(j, i);
+                    px2 = img(img.height() - j - 1, i);
+                }
+                Pixel::swap(px1, px2);
+            }
+        }
+    }
+
     void cropImage(ImageInfo& img, const Dimensions& dims)
     {
         auto px1 = img(0, 0);

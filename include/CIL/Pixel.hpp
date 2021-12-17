@@ -43,6 +43,7 @@ namespace CIL {
         Dimensions m_bounds;
 
       public:
+        Pixel() : m_row(0), m_col(0), m_image_matrix(nullptr), m_bounds(0) {}
         Pixel(ImageMatrix* image_matrix, uint32_t row, uint32_t col,
               Dimensions dims = 0)
             : m_row(row), m_col(col), m_image_matrix(image_matrix),
