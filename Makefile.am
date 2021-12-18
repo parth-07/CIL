@@ -40,7 +40,7 @@ example_PROGRAMS = examples/remove_red_from_rgb examples/invert \
                    examples/resize examples/noRedFilter \
                    examples/flipImage examples/rotateImage \
                    examples/blur examples/grayscale \
-				   examples/crop
+                   examples/crop examples/contrast
 
 endif
 

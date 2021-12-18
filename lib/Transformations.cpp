@@ -19,6 +19,25 @@ namespace CIL {
         }
     }
 
+    void changeContrast(ImageInfo& img, const double contrast)
+    {
+        double temp = 259 * (contrast + 255) / (255 * (259 - contrast));
+        for (auto px : img)
+        {
+            for (auto i = 0; i < px.numComponents() - img.hasAlphaComponent();
+                 i++)
+            {
+                double ans = temp * (px[i] - 128) + 128;
+                if (ans > 255)
+                    px[i] = 255;
+                else if (ans < 0)
+                    px[i] = 0;
+                else
+                    px[i] = round(ans);
+            }
+        }
+    }
+
     void flipImage(ImageInfo& img, const Axis axis)
     {
         uint32_t outer, inner;
