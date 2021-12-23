@@ -71,6 +71,7 @@ namespace CIL {
         ImageMatrix getData() const { return m_data; }
         void* internalInfo() const;
         ColorModel colorModel() const;
+        ImageType imageType() const;
         bool empty() const;
 
         void setColorModel(ColorModel color_model);
@@ -99,5 +100,8 @@ namespace CIL {
 
     CIL::ImageInfo readImage(const char* filename);
     CIL::ImageInfo readImage(const std::string& filename);
+
+    bool equal(const ImageInfo& img1, const ImageInfo& img2);
+    bool equal(const ImageInfo& img1, const std::string& image2_path);
 } // namespace CIL
 #endif

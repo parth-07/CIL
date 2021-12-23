@@ -181,4 +181,30 @@ namespace CIL {
         return m_color_model == ColorModel::COLOR_GRAY_ALPHA ||
                m_color_model == ColorModel::COLOR_RGBA;
     }
+
+    ImageType ImageInfo::imageType() const { return m_image_type; }
+
+    bool equal(const ImageInfo& img1, const ImageInfo& img2)
+    {
+        if (img1.width() != img2.width() || img1.height() != img2.height() ||
+            img1.numComponents() != img1.numComponents() ||
+            img1.sampleDepth() != img2.sampleDepth() ||
+            img1.colorModel() != img2.colorModel() ||
+            img1.imageType() != img2.imageType())
+        {
+            return false;
+        }
+        double allowed_error_percentage = 0;
+        if (img1.imageType() == ImageType::JPEG)
+            allowed_error_percentage = 1;
+        double err_percentage = computeErrorPercentage(img1.getData(),
+                                                       img2.getData());
+        show(err_percentage);
+        return err_percentage <= allowed_error_percentage;                                                       
+    }
+
+    bool equal(const ImageInfo& img1, const std::string& image2_path) {
+        auto img2 = readImage(image2_path);
+        return equal(img1, img2);
+    }
 } // namespace CIL

@@ -8,6 +8,7 @@ AC_CONFIG_HEADERS([include/config.h])
 # Add support for C and CPP files
 AC_PROG_CXX
 AC_PROG_CC
+AC_PROG_LN_S
 AM_CPPFLAGS="-std=c++11 -Wall -Wextra -Werror -pedantic -g "
 AC_SUBST([AM_CPPFLAGS])
 
@@ -16,7 +17,7 @@ AM_INIT_AUTOMAKE([foreign subdir-objects])
 
 # Initialize LIBTOOL_DEPS
 AC_SUBST([LIBTOOL_DEPS])
-LT_INIT
+LT_INIT([disable-shared])
 
 AC_ARG_ENABLE([examples],
               [AS_HELP_STRING([--enable-examples],
@@ -24,6 +25,20 @@ AC_ARG_ENABLE([examples],
                               [examples="$enableval"],
                               [examples="no"])
 AM_CONDITIONAL([EXAMPLES], [test x$examples = xyes])
+
+AC_ARG_ENABLE([tests],
+              [AS_HELP_STRING([--enable-tests],
+                              [Build Tests @<:@no@:>@])],
+                              [tests="$enableval"],
+                              [tests="no"])
+AM_CONDITIONAL([TESTS], [test x$tests = xyes ])
+AS_IF(
+    [test "xtests$" = "xyes"],
+    [PKG_CHECK_MODULES(
+      [catch2], [catch2 >= 2.13.5],
+    )]
+)
+
 
 AC_ARG_ENABLE([libjpeg],
               [AS_HELP_STRING([--enable-libjpeg],
@@ -63,6 +78,7 @@ AS_IF(
 
 AC_CONFIG_FILES([
     Makefile include/Makefile
+    tests/Makefile
 ])
 
 AC_OUTPUT
@@ -73,6 +89,7 @@ matches your expectations.
 
 Installation prefix: $prefix
 Build examples:      $examples
+Enable Tests:        $tests
 -------------------------------------------------------------------------------
 CIL additional library support:
 

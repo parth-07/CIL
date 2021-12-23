@@ -2,6 +2,7 @@
 #define CIL_IMAGE_MATRIX
 #include <CIL/Core/Types.hpp>
 #include <CIL/Pixel.hpp>
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -10,7 +11,7 @@ namespace CIL {
     {
       private:
         uint32_t m_width, m_height;
-        int m_num_components;
+        uint8_t m_num_components;
         uint8_t m_sample_depth;
         std::unique_ptr<uint8_t[]> m_data;
 
@@ -55,7 +56,7 @@ namespace CIL {
             reference operator*() { return m_px; }
             pointer operator->() { return &m_px; }
         };
-
+        using ValueType = uint8_t;
         ImageMatrix() {}
         ImageMatrix(uint32_t width, uint32_t height, int num_componenets,
                     uint8_t sample_depth,
@@ -68,7 +69,7 @@ namespace CIL {
 
         uint32_t width() const;
         uint32_t height() const;
-        int numComponents() const;
+        uint8_t numComponents() const;
         uint32_t sampleDepth() const;
         bool empty() const;
         uint32_t rowbytes() const;
@@ -81,7 +82,19 @@ namespace CIL {
         const uint8_t& operator()(uint32_t row, uint32_t col, int comp) const;
 
         void convolute(const Sequence<double>& v);
+        void forEach(std::function<void(const typename ImageMatrix::ValueType&)>
+                         fn) const;
+
+        void
+        forEach(std::function<void(const typename ImageMatrix::ValueType&,
+                                   uint32_t row, uint32_t col, uint32_t comp)>
+                    fn) const;
     };
+    double computeErrorPercentage(const ImageMatrix& data1,
+                                  const ImageMatrix& data2);
+
+    ImageMatrix computeAbsDifference(const ImageMatrix& data1,
+                                     const ImageMatrix& data2);
 } // namespace CIL
 
 #endif

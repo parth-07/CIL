@@ -13,7 +13,11 @@ STRING(CONCAT libjpeg_turbo_option_message "Path to libjpeg-turbo installation d
                                            "If both libjpeg and libjpeg-turbo are found"
                                            "libjpeg-turbo will be used")
 option(LIBJPEG_TURBO_DIR libjpeg_turbo_option_message)
+STRING(CONCAT catch2_dir_help "Path to catch2 installation directory, required"
+                              "when catch2 is installed in a non-default location")
+option(CATCH2_DIR catch2_dir_help)
 option(CIL_BUILD_EXAMPLES "Specify if examples should be added and built")
+option(CIL_BUILD_TESTS "Build tests as part of the 'all' build target. Default to Off")
 
 if(ENV{PKG_CONFIG_PATH})
     set(pkg_config_path $ENV{PKG_CONFIG_PATH})
@@ -31,6 +35,10 @@ endif()
 
 if(LIBJPEG_TURBO_DIR)
     list(PREPEND CMAKE_PREFIX_PATH ${LIBJPEG_TURBO_DIR})
+endif()
+
+if(CATCH2_DIR)
+    list(PREPEND CMAKE_PREFIX_PATH ${CATCH2_DIR})
 endif()
 
 pkg_check_modules(LIBPNG libpng=1.6.37)
@@ -87,6 +95,18 @@ add_subdirectory(lib)
 
 if(CIL_BUILD_EXAMPLES)
     add_subdirectory(examples)
+endif()
+
+if(CIL_BUILD_TESTS) 
+    pkg_check_modules(CATCH2 catch2>=2.13.5)
+    if (CATCH2_FOUND)
+        message(STATUS "Catch2 ${CATCH2_VERSION} will be used to build tests for the project.")
+        include(CTest)
+        enable_testing()
+        add_subdirectory(tests)
+    else()    
+        message(WARNING "Catch2 not found. Tests cannot be built without Catch2. Skipping tests.")
+    endif()
 endif()
 
 install(DIRECTORY include/ TYPE INCLUDE)

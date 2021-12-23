@@ -49,7 +49,7 @@ namespace CIL {
 
     uint32_t ImageMatrix::width() const { return m_width; }
     uint32_t ImageMatrix::height() const { return m_height; }
-    int ImageMatrix::numComponents() const { return m_num_components; }
+    uint8_t ImageMatrix::numComponents() const { return m_num_components; }
     uint32_t ImageMatrix::sampleDepth() const { return m_sample_depth; }
     bool ImageMatrix::empty() const { return m_width == 0 || m_height == 0; }
 
@@ -120,5 +120,62 @@ namespace CIL {
             new_img(px.row(), px.col()) = dePx;
         }
         *this = new_img;
+    }
+
+    void ImageMatrix::forEach(
+        std::function<void(const typename ImageMatrix::ValueType&)> fn) const
+    {
+        for (auto i = 0U; i < m_height; ++i)
+            for (auto j = 0U; j < m_width; ++j)
+                for (auto k = 0U; k < m_num_components; ++k)
+                    fn((*this)(i, j, k));
+    }
+
+    void ImageMatrix::forEach(
+        std::function<void(const typename ImageMatrix::ValueType&, uint32_t row,
+                           uint32_t col, uint32_t comp)>
+            fn) const
+    {
+        for (auto i = 0U; i < m_height; ++i)
+            for (auto j = 0U; j < m_width; ++j)
+                for (auto k = 0U; k < m_num_components; ++k)
+                    fn((*this)(i, j, k), i, j, k);
+    }
+
+    ImageMatrix computeAbsDifference(const ImageMatrix& data1,
+                                     const ImageMatrix& data2)
+    {
+        assert(data1.width() == data2.width() &&
+               data1.height() == data2.height() &&
+               data1.numComponents() == data2.numComponents() &&
+               data1.sampleDepth() == data2.sampleDepth());
+        ImageMatrix data(data1.width(), data2.height(), data1.numComponents(),
+                         data1.sampleDepth());
+        data1.forEach([&data, &data2](const typename ImageMatrix::ValueType val,
+                                      uint32_t row, uint32_t col,
+                                      uint32_t comp) {
+            data(row, col,
+                 comp) = std::abs(static_cast<int16_t>(val) -
+                                  static_cast<int16_t>(data2(row, col, comp)));
+        });
+        return data;
+    }
+
+    double computeErrorPercentage(const ImageMatrix& data1,
+                                  const ImageMatrix& data2)
+    {
+        assert(data1.width() == data2.width() &&
+               data1.height() == data2.height() &&
+               data1.numComponents() == data2.numComponents() &&
+               data1.sampleDepth() == data2.sampleDepth());
+        double total_diff = 0;
+        ImageMatrix diffMatrix = computeAbsDifference(data1, data2);
+        diffMatrix.forEach([&total_diff](const ImageMatrix::ValueType val) {
+            total_diff += val;
+        });
+        auto total_err = total_diff / 255.0;
+        auto normalised_err = total_err / (data1.width() * data1.height() *
+                                           data1.numComponents());
+        return normalised_err * 100;
     }
 } // namespace CIL
