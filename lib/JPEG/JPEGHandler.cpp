@@ -105,7 +105,8 @@ namespace CIL {
                 cinfo.in_color_space = static_cast<JPEG::ImageInfo*>(
                                            cil_image_info->internalInfo())
                                            ->colorType();
-            } else {
+            } else
+            {
                 cinfo.in_color_space = JCS_GRAYSCALE;
             }
 

@@ -13,7 +13,7 @@ libciltests_la_SOURCES = main.cpp
 libciltests_la_CXXFLAGS = $(AM_CPPFLAGS) $(shell pkg-config --cflags catch2)
 
 LDADD = $(top_builddir)/libcil.la libciltests.la
-check_PROGRAMS = crop rotate flip resize
+check_PROGRAMS = crop rotate flip resize brightness
 check_CXXFLAGS = $(AM_CPPFLAGS) $(shell pkg-config --cflags catch2)
 
 TESTS = $(check_PROGRAMS)

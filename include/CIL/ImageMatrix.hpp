@@ -58,7 +58,7 @@ namespace CIL {
         };
         using ValueType = uint8_t;
         ImageMatrix() {}
-        ImageMatrix(uint32_t width, uint32_t height, int num_componenets,
+        ImageMatrix(uint32_t width, uint32_t height, uint8_t num_componenets,
                     uint8_t sample_depth,
                     std::unique_ptr<uint8_t[]> data = nullptr);
 

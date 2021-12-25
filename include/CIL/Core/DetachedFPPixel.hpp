@@ -24,14 +24,18 @@ namespace CIL {
         {}
         ValueType& operator[](int idx) { return m_components[idx]; }
         const ValueType& operator[](int idx) const { return m_components[idx]; }
-        int32_t numComponents() const { return m_components.size(); }
+        std::size_t numComponents() const { return m_components.size(); }
         ValueType sum() const;
         void scale(const std::vector<ValueType> multipliers);
-
+        void capRange(double l, double r);
+        ValueType& back() { return m_components.back(); }
+        const ValueType& back() const { return m_components.back(); }
     };
 
     DetachedFPPixel operator*(double scale, const DetachedFPPixel& dpx);
     DetachedFPPixel& operator+=(DetachedFPPixel& lhs,
                                 const DetachedFPPixel& rhs);
+    DetachedFPPixel& operator+=(DetachedFPPixel& lhs,
+                                typename DetachedFPPixel::ValueType val);
 } // namespace CIL
 #endif

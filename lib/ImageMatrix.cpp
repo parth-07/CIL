@@ -8,7 +8,7 @@
 
 namespace CIL {
     ImageMatrix::ImageMatrix(uint32_t width, uint32_t height,
-                             int num_componenets, uint8_t sample_depth,
+                             uint8_t num_componenets, uint8_t sample_depth,
                              std::unique_ptr<uint8_t[]> data)
         : m_width(width), m_height(height), m_num_components(num_componenets),
           m_sample_depth(sample_depth)

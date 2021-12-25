@@ -200,10 +200,11 @@ namespace CIL {
         double err_percentage = computeErrorPercentage(img1.getData(),
                                                        img2.getData());
         show(err_percentage);
-        return err_percentage <= allowed_error_percentage;                                                       
+        return err_percentage <= allowed_error_percentage;
     }
 
-    bool equal(const ImageInfo& img1, const std::string& image2_path) {
+    bool equal(const ImageInfo& img1, const std::string& image2_path)
+    {
         auto img2 = readImage(image2_path);
         return equal(img1, img2);
     }

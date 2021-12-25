@@ -16,7 +16,7 @@ namespace CIL {
     DetachedFPPixel operator*(double scale, const DetachedFPPixel& dpx)
     {
         DetachedFPPixel scaled_dpx(dpx.numComponents());
-        for (auto i = 0; i < dpx.numComponents(); ++i)
+        for (auto i = 0U; i < dpx.numComponents(); ++i)
         {
             scaled_dpx[i] = scale * dpx[i];
         }
@@ -27,7 +27,7 @@ namespace CIL {
                                 const DetachedFPPixel& rhs)
     {
         assert(lhs.numComponents() == rhs.numComponents());
-        for (int i = 0; i < lhs.numComponents(); ++i)
+        for (auto i = 0U; i < lhs.numComponents(); ++i)
         {
             lhs[i] += rhs[i];
         }
@@ -47,5 +47,26 @@ namespace CIL {
     {
         return std::accumulate(m_components.begin(), m_components.end(),
                                ValueType());
+    }
+
+    void DetachedFPPixel::capRange(double l, double r)
+    {
+        for (auto i = 0U; i < m_components.size(); ++i)
+        {
+            if (m_components[i] < l)
+                m_components[i] = l;
+            else if (m_components[i] > r)
+                m_components[i] = r;
+        }
+    }
+
+    DetachedFPPixel& operator+=(DetachedFPPixel& lhs,
+                                typename DetachedFPPixel::ValueType val)
+    {
+        for (auto i = 0U; i < lhs.numComponents(); ++i)
+        {
+            lhs[i] += val;
+        }
+        return lhs;
     }
 } // namespace CIL

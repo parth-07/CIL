@@ -10,10 +10,12 @@ namespace CIL {
         return c;
     }
 
-    int Coordinate::getNearestIntegralX() const {
+    int Coordinate::getNearestIntegralX() const
+    {
         return static_cast<int>(std::lround(x));
     }
-    int Coordinate::getNearestIntegralY() const {
+    int Coordinate::getNearestIntegralY() const
+    {
         return static_cast<int>(std::lround(y));
     }
 } // namespace CIL

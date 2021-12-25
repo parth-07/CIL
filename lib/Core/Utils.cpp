@@ -69,7 +69,7 @@ namespace CIL {
                     if (!px.isValid())
                         continue;
                     auto wt = computeOverlappingArea(px, source);
-                    dpx += wt*px;
+                    dpx += wt * px;
                 }
             }
             return dpx;

@@ -57,11 +57,11 @@ namespace CIL {
 
         uint32_t row() const { return m_row; }
         uint32_t col() const { return m_col; }
-        int numComponents() const;
+        uint8_t numComponents() const;
         bool isValid() const;
 
         Pixel& operator=(const DetachedFPPixel& dpx);
-
+        using ValueType = uint8_t;
         // TODO: improve design
         Dimensions getBounds() const { return m_bounds; }
         void setBounds(Dimensions dims) { m_bounds = dims; }
@@ -88,7 +88,7 @@ namespace CIL {
         Pixel& operator++();
         Pixel operator--(int);
         Pixel& operator--();
-
+        ValueType& back();
         void static swap(CIL::Pixel& p1, CIL::Pixel& p2);
 
         // debug

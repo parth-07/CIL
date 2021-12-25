@@ -10,10 +10,12 @@ int main(int argc, char* argv[])
     }
     CIL::ImageInfo image1 = CIL::readImage(argv[1]);
     CIL::ImageInfo image2 = CIL::readImage(argv[2]);
-    if (CIL::equal(image1, image2)) {
-      std::cout<<"Images are equal\n";
-    } else {
-      std::cout<<"Images are not equal\n";
+    if (CIL::equal(image1, image2))
+    {
+        std::cout << "Images are equal\n";
+    } else
+    {
+        std::cout << "Images are not equal\n";
     }
     return 0;
 }

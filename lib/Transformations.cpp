@@ -37,6 +37,20 @@ namespace CIL {
             }
         }
     }
+    void changeBrightness(ImageInfo& img, int16_t brightness)
+    {
+        for (auto px : img)
+        {
+            DetachedFPPixel dpx(px);
+            dpx += brightness;
+            dpx.capRange(0, 255);
+            if (img.hasAlphaComponent())
+            {
+                dpx.back() = px.back();
+            }
+            px = dpx;
+        }
+    }
 
     void flipImage(ImageInfo& img, const Axis axis)
     {

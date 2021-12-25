@@ -33,6 +33,7 @@ namespace CIL {
 
     void invertColor(ImageInfo&);
     void changeContrast(ImageInfo& img, const double contrast);
+    void changeBrightness(ImageInfo& img, int16_t brightness);
     void flipImage(ImageInfo& img, const Axis axis);
     void cropImage(ImageInfo& img, const Dimensions& dims);
     void padImage(ImageInfo& img, const Dimensions& dims);
