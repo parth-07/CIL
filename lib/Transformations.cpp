@@ -306,4 +306,12 @@ namespace CIL {
         }
         img.setData(new_image_data);
     }
+
+    void zoom(ImageInfo& img, const Dimensions& dims)
+    {
+        auto width = img.width();
+        auto height = img.height();
+        cropImage(img, dims);
+        resize(img, width, height);
+    }
 } // namespace CIL

@@ -45,5 +45,6 @@ namespace CIL {
     void resize(ImageInfo& img, uint32_t new_width, uint32_t new_height,
                 ResizeAlgorithm resize_algorithm =
                     ResizeAlgorithm::bilinear_interpolation);
+    void zoom(ImageInfo& img, const Dimensions& dims);
 } // namespace CIL
 #endif
