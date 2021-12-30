@@ -14,6 +14,7 @@ namespace CIL {
         uint8_t m_num_components;
         uint8_t m_sample_depth;
         std::unique_ptr<uint8_t[]> m_data;
+        bool m_has_alpha;
 
       public:
         class iterator
@@ -58,9 +59,10 @@ namespace CIL {
         };
         using ValueType = uint8_t;
         ImageMatrix() {}
-        ImageMatrix(uint32_t width, uint32_t height, uint8_t num_componenets,
+        ImageMatrix(uint32_t width, uint32_t height, uint8_t num_components,
                     uint8_t sample_depth,
-                    std::unique_ptr<uint8_t[]> data = nullptr);
+                    std::unique_ptr<uint8_t[]> data = nullptr,
+                    bool has_alpha = false);
 
         ImageMatrix(const ImageMatrix&);
         ImageMatrix& operator=(const ImageMatrix&);
@@ -73,7 +75,7 @@ namespace CIL {
         uint32_t sampleDepth() const;
         bool empty() const;
         uint32_t rowbytes() const;
-
+        bool hasAlpha() const;
         iterator begin() { return (*this)(0, 0); }
         iterator end() { return (*this)(m_height, 0); }
 

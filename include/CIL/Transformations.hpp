@@ -41,7 +41,7 @@ namespace CIL {
     void
     rotate(ImageInfo& img, int degrees,
            RotationKind rotation_kind = RotationKind::rotation_by_area_mapping);
-    void convertToGrayscale(ImageInfo& img);
+    void convertToGrayscale(ImageInfo& img, bool preserve_colortype = true);
     void resize(ImageInfo& img, uint32_t new_width, uint32_t new_height,
                 ResizeAlgorithm resize_algorithm =
                     ResizeAlgorithm::bilinear_interpolation);

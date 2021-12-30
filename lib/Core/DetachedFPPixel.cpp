@@ -5,7 +5,7 @@
 
 namespace CIL {
     DetachedFPPixel::DetachedFPPixel(const Pixel& px)
-        : m_components(px.numComponents(), 0)
+        : m_components(px.numComponents(), 0), m_has_alpha(px.hasAlpha())
     {
         for (auto i = 0U; i < m_components.size(); ++i)
         {
@@ -43,9 +43,11 @@ namespace CIL {
         }
     }
 
-    DetachedFPPixel::ValueType DetachedFPPixel::sum() const
+    DetachedFPPixel::ValueType DetachedFPPixel::sum(bool exclude_alpha) const
     {
-        return std::accumulate(m_components.begin(), m_components.end(),
+        auto ignore_last_comp = (exclude_alpha && m_has_alpha);
+        return std::accumulate(m_components.begin(),
+                               m_components.end() - ignore_last_comp,
                                ValueType());
     }
 
@@ -57,6 +59,16 @@ namespace CIL {
                 m_components[i] = l;
             else if (m_components[i] > r)
                 m_components[i] = r;
+        }
+    }
+
+    void DetachedFPPixel::forEach(std::function<void(ValueType& val)> fn,
+                                  bool exclude_alpha)
+    {
+        unsigned ignore_last_comp = (exclude_alpha && m_has_alpha);
+        for (auto i = 0U; i < numComponents() - ignore_last_comp; ++i)
+        {
+            fn((*this)[i]);
         }
     }
 

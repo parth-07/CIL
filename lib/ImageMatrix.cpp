@@ -9,9 +9,9 @@
 namespace CIL {
     ImageMatrix::ImageMatrix(uint32_t width, uint32_t height,
                              uint8_t num_componenets, uint8_t sample_depth,
-                             std::unique_ptr<uint8_t[]> data)
+                             std::unique_ptr<uint8_t[]> data, bool has_alpha)
         : m_width(width), m_height(height), m_num_components(num_componenets),
-          m_sample_depth(sample_depth)
+          m_sample_depth(sample_depth), m_has_alpha(has_alpha)
     {
         if (data != nullptr)
             m_data = std::move(data);
@@ -27,6 +27,7 @@ namespace CIL {
         m_height = other.m_height;
         m_num_components = other.m_num_components;
         m_sample_depth = other.m_sample_depth;
+        m_has_alpha = other.m_has_alpha;
         m_data.reset(new uint8_t[other.m_height * other.rowbytes()]);
         std::memcpy(m_data.get(), other.m_data.get(),
                     other.m_height * other.rowbytes());
@@ -43,6 +44,7 @@ namespace CIL {
         m_height = rvalue.m_height;
         m_num_components = rvalue.m_num_components;
         m_sample_depth = rvalue.m_sample_depth;
+        m_has_alpha = rvalue.m_has_alpha;
         m_data.reset(rvalue.m_data.release());
         return *this;
     }
@@ -51,6 +53,7 @@ namespace CIL {
     uint32_t ImageMatrix::height() const { return m_height; }
     uint8_t ImageMatrix::numComponents() const { return m_num_components; }
     uint32_t ImageMatrix::sampleDepth() const { return m_sample_depth; }
+    bool ImageMatrix::hasAlpha() const { return m_has_alpha; }
     bool ImageMatrix::empty() const { return m_width == 0 || m_height == 0; }
 
     uint32_t ImageMatrix::rowbytes() const

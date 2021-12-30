@@ -59,6 +59,7 @@ namespace CIL {
         uint32_t col() const { return m_col; }
         uint8_t numComponents() const;
         bool isValid() const;
+        bool hasAlpha() const;
 
         Pixel& operator=(const DetachedFPPixel& dpx);
         using ValueType = uint8_t;

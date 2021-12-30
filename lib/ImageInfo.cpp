@@ -12,7 +12,9 @@ namespace CIL {
                          ColorModel color_model, ImageType image_type,
                          std::unique_ptr<uint8_t[]> data, void* internal_info)
         : m_color_model(color_model), m_image_type(image_type),
-          m_data(width, height, num_components, sample_depth, std::move(data)),
+          m_data(width, height, num_components, sample_depth, std::move(data),
+                 (color_model == ColorModel::COLOR_GRAY_ALPHA ||
+                  color_model == ColorModel::COLOR_RGBA)),
           m_internal_info(internal_info)
     {}
 

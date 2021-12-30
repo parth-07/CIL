@@ -120,4 +120,5 @@ namespace CIL {
     }
 
     Pixel::ValueType& Pixel::back() { return (*this)[numComponents() - 1]; }
+    bool Pixel::hasAlpha() const { return m_image_matrix->hasAlpha(); }
 } // namespace CIL
