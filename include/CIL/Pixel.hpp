@@ -10,6 +10,7 @@ namespace CIL {
     class ImageMatrix;
     class DetachedFPPixel;
     class Pixel;
+    class ColorMap;
 
     struct Dimensions
     {
@@ -43,6 +44,8 @@ namespace CIL {
         Dimensions m_bounds;
 
       public:
+        using ValueType = uint8_t;
+
         Pixel() : m_row(0), m_col(0), m_image_matrix(nullptr), m_bounds(0) {}
         Pixel(ImageMatrix* image_matrix, uint32_t row, uint32_t col,
               Dimensions dims = 0)
@@ -62,7 +65,8 @@ namespace CIL {
         bool hasAlpha() const;
 
         Pixel& operator=(const DetachedFPPixel& dpx);
-        using ValueType = uint8_t;
+        void assign(const ColorMap& color);
+
         // TODO: improve design
         Dimensions getBounds() const { return m_bounds; }
         void setBounds(Dimensions dims) { m_bounds = dims; }

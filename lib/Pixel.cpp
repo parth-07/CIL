@@ -1,4 +1,5 @@
 #include <CIL/Core/DetachedFPPixel.hpp>
+#include <CIL/Drawing.hpp>
 #include <CIL/ImageMatrix.hpp>
 #include <CIL/Pixel.hpp>
 #include <cassert>
@@ -117,6 +118,15 @@ namespace CIL {
             (*this)[i] = dpx[i];
         }
         return *this;
+    }
+
+    void Pixel::assign(const ColorMap& color)
+    {
+        assert(numComponents() >= color.numComponents());
+        for (auto i = 0U; i < color.numComponents(); ++i)
+        {
+            (*this)[i] = color[i];
+        }
     }
 
     Pixel::ValueType& Pixel::back() { return (*this)[numComponents() - 1]; }
