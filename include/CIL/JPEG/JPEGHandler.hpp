@@ -2,24 +2,27 @@
 #define JPEG_HPP
 
 #include <CIL/ImageInfo.hpp>
+#include <CIL/ImageHandler.hpp>
 #include <iostream>
 #include <jpeglib.h>
 #include <setjmp.h>
 #include <stdint.h>
 #include <stdio.h>
 
+
 namespace CIL {
     namespace JPEG {
-        class JPEGHandler
+        class JPEGHandler : public ImageHandler
         {
           public:
-            static CIL::ImageInfo read(const char* file_name);
-            static bool write(const CIL::ImageInfo* image_info,
-                              const char* file_name);
-            static void destroy(CIL::ImageInfo* image_info);
+            CIL::ImageInfo read(const char* file_name) override;
+            bool write(const CIL::ImageInfo* image_info,
+                              const char* file_name) override;
+            bool isSupportedFile(const char* file_name) override;
+            std::string imageType() override;
+            void destroyInternalInfo(const CIL::ImageInfo* image_info) override;
+            void* cloneInternalInfo(void* internal_img_info) override;
             static bool isJPEGFile(FILE* fp);
-            static bool isJPEGFile(const char* file_name);
-            static void* clone(void* internal_img_info);
 
           private:
             struct ErrorManager

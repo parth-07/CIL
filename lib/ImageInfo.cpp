@@ -5,24 +5,52 @@
 #ifdef CIL_PNG_ENABLED
 #include <CIL/PNG/PNGHandler.hpp>
 #endif
+#include <CIL/ImageHandler.hpp>
 #include <CIL/PPM/PPMHandler.hpp>
+
+#include <memory>
+#include <vector>
 namespace CIL {
+    static std::vector<std::unique_ptr<ImageHandler>> registered_image_handlers;
+    static int initializeImageHandlers()
+    {
+        registered_image_handlers.push_back(
+            std::unique_ptr<ImageHandler>(new PPMHandler()));
+#ifdef CIL_PNG_ENABLED
+        registered_image_handlers.push_back(
+            std::unique_ptr<ImageHandler>(new PNG::PNGHandler()));
+#endif
+#ifdef CIL_JPEG_ENABLED
+        registered_image_handlers.push_back(
+            std::unique_ptr<ImageHandler>(new JPEG::JPEGHandler()));
+#endif
+        return 1;
+    }
+    static int dummy = initializeImageHandlers();
+
+    void AddImageHandler(std::unique_ptr<ImageHandler> handler)
+    {
+        registered_image_handlers.push_back(std::move(handler));
+    }
+
     ImageInfo::ImageInfo(uint32_t width, uint32_t height,
                          uint32_t num_components, uint32_t sample_depth,
-                         ColorModel color_model, ImageType image_type,
-                         std::unique_ptr<uint8_t[]> data, void* internal_info)
+                         ColorModel color_model, const std::string& image_type,
+                         std::unique_ptr<uint8_t[]> data, void* internal_info,
+                         const std::string& internal_info_image_type)
         : m_color_model(color_model), m_image_type(image_type),
           m_data(width, height, num_components, sample_depth, std::move(data),
                  (color_model == ColorModel::COLOR_GRAY_ALPHA ||
                   color_model == ColorModel::COLOR_RGBA)),
-          m_internal_info(internal_info)
+          m_internal_info(internal_info),
+          m_internal_info_image_type(internal_info_image_type)
     {}
 
     // TODO: We cannot just copy the internal_info pointer
     ImageInfo::ImageInfo(const ImageInfo& other)
-        : m_color_model(other.m_color_model), m_image_type(other.m_image_type),
-          m_data(other.m_data), m_internal_info(other.cloneInternalInfo())
-    {}
+    {
+        *this = other;
+    }
 
     ImageInfo& ImageInfo::operator=(const ImageInfo& other)
     {
@@ -33,17 +61,14 @@ namespace CIL {
         m_data = other.m_data;
         destroyInternalInfo();
         m_internal_info = other.cloneInternalInfo();
+        m_internal_info_image_type = other.m_internal_info_image_type;
         return *this;
     }
 
     // TODO: We cannot just copy the internal_info pointer
     ImageInfo::ImageInfo(ImageInfo&& other)
-        : m_color_model(other.m_color_model), m_image_type(other.m_image_type),
-          m_data(std::move(other.m_data))
     {
-        auto temp = other.m_internal_info;
-        other.m_internal_info = m_internal_info;
-        m_internal_info = temp;
+        *this = std::move(other);
     }
 
     ImageInfo& ImageInfo::operator=(ImageInfo&& other)
@@ -53,6 +78,14 @@ namespace CIL {
         m_color_model = other.m_color_model;
         m_image_type = other.m_image_type;
         m_data = std::move(other.m_data);
+
+        auto temp = other.m_internal_info;
+        other.m_internal_info = m_internal_info;
+        m_internal_info = temp;
+
+        auto ii_image_type = m_internal_info;
+        m_internal_info = other.m_internal_info;
+        other.m_internal_info = ii_image_type;
         return *this;
     }
 
@@ -65,21 +98,22 @@ namespace CIL {
     }
     ImageInfo::~ImageInfo() { destroyInternalInfo(); }
 
+    void ImageInfo::resetInternalInfo()
+    {
+        m_internal_info = nullptr;
+        m_internal_info_image_type = "";
+    }
+
     void ImageInfo::destroyInternalInfo()
     {
-        switch (m_image_type)
+        for (auto& handler : registered_image_handlers)
         {
-            case ImageType::JPEG:
-#ifdef CIL_JPEG_ENABLED
-                JPEG::JPEGHandler::destroy(this);
-#endif
-                break;
-            case ImageType::PNG:
-#ifdef CIL_PNG_ENABLED
-                PNG::PNGHandler::destroy(this);
-#endif
-                break;
-            case ImageType::PPM: break;
+            if (m_internal_info_image_type == handler->imageType())
+            {
+                handler->destroyInternalInfo(this);
+                resetInternalInfo();
+                return;
+            }
         }
     }
 
@@ -115,21 +149,14 @@ namespace CIL {
 
     CIL::ImageInfo readImage(const char* filename)
     {
-#ifdef CIL_PNG_ENABLED
-        if (PNG::PNGHandler::isPNGFile(filename))
+        // TODO: Check if file exists or not in the first place, 
+        // this will allow us to give better errors.
+        for (auto& handler : registered_image_handlers)
         {
-            return PNG::PNGHandler::readAs8RGB(filename);
-        }
-#endif
-#ifdef CIL_JPEG_ENABLED
-        if (JPEG::JPEGHandler::isJPEGFile(filename))
-        {
-            return JPEG::JPEGHandler::read(filename);
-        }
-#endif
-        if (ppm_handler.isValidFile(filename))
-        {
-            return ppm_handler.read(filename);
+            if (handler->isSupportedFile(filename))
+            {
+                return handler->read(filename);
+            }
         }
         return ImageInfo();
     }
@@ -141,37 +168,21 @@ namespace CIL {
 
     bool ImageInfo::save(const std::string& filename) const
     {
-        switch (m_image_type)
+        for (auto& handler : registered_image_handlers)
         {
-            case ImageType::PNG:
-#ifdef CIL_PNG_ENABLED
-                return PNG::PNGHandler::write(this, filename.c_str());
-#endif
-                break;
-            case ImageType::JPEG:
-#ifdef CIL_JPEG_ENABLED
-                return JPEG::JPEGHandler::write(this, filename.c_str());
-#endif
-                break;
-            case ImageType::PPM: return ppm_handler.write(*this, filename);
+            if (m_image_type == handler->imageType())
+                return handler->write(this, filename.c_str());
         }
         return false;
     }
     void* ImageInfo::cloneInternalInfo() const
     {
-        switch (m_image_type)
+        for (auto& handler : registered_image_handlers)
         {
-            case ImageType::PNG:
-#ifdef CIL_PNG_ENABLED
-                return PNG::PNGHandler::clone(this->m_internal_info);
-#endif
-                break;
-            case ImageType::JPEG:
-#ifdef CIL_JPEG_ENABLED
-                return JPEG::JPEGHandler::clone(this->m_internal_info);
-#endif
-                break;
-            case ImageType::PPM: break;
+            if (m_internal_info_image_type == handler->imageType())
+            {
+                return handler->cloneInternalInfo(this->m_internal_info);
+            }
         }
         return nullptr;
     }
@@ -184,7 +195,7 @@ namespace CIL {
                m_color_model == ColorModel::COLOR_RGBA;
     }
 
-    ImageType ImageInfo::imageType() const { return m_image_type; }
+    std::string ImageInfo::imageType() const { return m_image_type; }
 
     bool equal(const ImageInfo& img1, const ImageInfo& img2)
     {
@@ -197,7 +208,7 @@ namespace CIL {
             return false;
         }
         double allowed_error_percentage = 0;
-        if (img1.imageType() == ImageType::JPEG)
+        if (img1.imageType() == "JPEG")
             allowed_error_percentage = 1;
         double err_percentage = computeErrorPercentage(img1.getData(),
                                                        img2.getData());

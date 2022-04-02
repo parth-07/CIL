@@ -22,7 +22,7 @@ namespace CIL {
             return rows;
         }
 
-        CIL::ImageInfo PNGHandler::read(const char* filename)
+        CIL::ImageInfo PNGHandler::readExact(const char* filename)
         {
             LibpngReadData lrd;
             FILE* fp = fopen(filename, "rb");
@@ -49,7 +49,7 @@ namespace CIL {
             return img_info->toCILImageInfo();
         }
 
-        CIL::ImageInfo PNGHandler::readAs8RGB(const char* filename)
+        CIL::ImageInfo PNGHandler::read(const char* filename)
         {
             LibpngReadData lrd;
             FILE* fp = fopen(filename, "rb");
@@ -119,26 +119,32 @@ namespace CIL {
             return is_png;
         }
 
-        bool PNGHandler::isPNGFile(const char* filename)
+        bool PNGHandler::isSupportedFile(const char* filename)
         {
             FILE* fp = fopen(filename, "rb");
+            if (!fp)
+                return false;
             bool is_png = isPNGFile(fp);
             fclose(fp);
             return is_png;
         }
 
-        void PNGHandler::destroy(const CIL::ImageInfo* cil_image_info)
+        void PNGHandler::destroyInternalInfo(const CIL::ImageInfo* cil_image_info)
         {
             auto ptr = static_cast<PNG::ImageInfo*>(
                 (cil_image_info->internalInfo()));
             PNG::ImageInfo::destroy(&ptr);
         }
 
-        void* PNGHandler::clone(void* internal_img_info)
+        void* PNGHandler::cloneInternalInfo(void* internal_img_info)
         {
             auto png_img_info = static_cast<PNG::ImageInfo*>(internal_img_info);
             auto new_png_img_info = new PNG::ImageInfo(*png_img_info);
             return new_png_img_info;
+        }
+
+        std::string PNGHandler::imageType() {
+            return "PNG";
         }
     } // namespace PNG
 } // namespace CIL

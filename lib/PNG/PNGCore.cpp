@@ -7,6 +7,7 @@
 
 namespace CIL {
     namespace PNG {
+        const std::string PNG_image_type = "PNG";
         /// Attaches a very basic error handler routine with the provided
         /// `png_ptr` and `info_ptr`.
         // TODO: Use more sophisticated error handler routine.
@@ -187,7 +188,6 @@ namespace CIL {
         {
             auto color_model = getCorrespondingCILColorModel(m_color_type);
             void* internal_info = this;
-            auto image_type = ImageType::PNG;
 
             std::unique_ptr<uint8_t[]> data(
                 static_cast<uint8_t*>(m_scanlines[0]));
@@ -195,8 +195,8 @@ namespace CIL {
             delete[] m_scanlines;
             m_scanlines = static_cast<png_bytepp>(nullptr);
             CIL::ImageInfo cil_img_info(m_width, m_height, m_num_channels,
-                                        m_sample_depth, color_model, image_type,
-                                        std::move(data), internal_info);
+                                        m_sample_depth, color_model, PNG_image_type,
+                                        std::move(data), internal_info, PNG_image_type);
             return cil_img_info;
         }
 
@@ -222,10 +222,15 @@ namespace CIL {
             {
                 m_scanlines[i] = data + i * m_rowbytes;
             }
-
-            m_interlace_type = internal_info->m_interlace_type;
-            m_compression_type = internal_info->m_compression_type;
-            m_filter_type = internal_info->m_filter_type;
+            if (cil_img_info->internalInfoImageType() == PNG_image_type) {
+                m_interlace_type = internal_info->m_interlace_type;
+                m_compression_type = internal_info->m_compression_type;
+                m_filter_type = internal_info->m_filter_type;
+            } else {
+                m_interlace_type = PNG_INTERLACE_NONE;
+                m_compression_type = PNG_COMPRESSION_TYPE_BASE;
+                m_filter_type = PNG_FILTER_TYPE_BASE;
+            }
             return true;
         }
 

@@ -153,7 +153,7 @@ namespace CIL {
             return is_jpeg;
         }
 
-        bool JPEGHandler::isJPEGFile(const char* file_name)
+        bool JPEGHandler::isSupportedFile(const char* file_name)
         {
             FILE* fp = fopen(file_name, "rb");
             bool is_jpeg = isJPEGFile(fp);
@@ -178,7 +178,7 @@ namespace CIL {
             fprintf(stderr, "%s\n", buffer);
         }
 
-        void* JPEGHandler::clone(void* internal_img_info)
+        void* JPEGHandler::cloneInternalInfo(void* internal_img_info)
         {
             auto jpeg_img_info = static_cast<JPEG::ImageInfo*>(
                 internal_img_info);
@@ -186,11 +186,16 @@ namespace CIL {
             return new_jpeg_img_info;
         }
 
-        void JPEGHandler::destroy(CIL::ImageInfo* cil_image_info)
+        void
+        JPEGHandler::destroyInternalInfo(const CIL::ImageInfo* cil_image_info)
         {
             auto jpeg_img = static_cast<const JPEG::ImageInfo*>(
                 cil_image_info->internalInfo());
             delete jpeg_img;
+        }
+
+        std::string JPEGHandler::imageType() {
+            return "JPEG";
         }
     } // namespace JPEG
 } // namespace CIL
