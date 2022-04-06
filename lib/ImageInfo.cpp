@@ -12,6 +12,7 @@
 #include <vector>
 namespace CIL {
     static std::vector<std::unique_ptr<ImageHandler>> registered_image_handlers;
+    // static std::vector<ImageHandler*> registered_image_handlers = {new PPMHandler(), new PNG::PNGHandler(), };
     static int initializeImageHandlers()
     {
         registered_image_handlers.push_back(

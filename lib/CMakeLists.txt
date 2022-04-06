@@ -1,4 +1,4 @@
-add_library(cil ImageInfo.cpp ImageMatrix.cpp Pixel.cpp Transformations.cpp Drawing.cpp)
+add_library(cil ImageHandler.cpp ImageInfo.cpp ImageMatrix.cpp Pixel.cpp Transformations.cpp Drawing.cpp)
 
 target_include_directories(cil PUBLIC ${CMAKE_SOURCE_DIR}/include)
 

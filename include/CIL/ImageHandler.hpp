@@ -12,15 +12,9 @@ namespace CIL {
     virtual bool write(const CIL::ImageInfo* cil_img_info, const char* filename) = 0;
     virtual bool isSupportedFile(const char* filename) = 0;
     virtual std::string imageType() = 0;
-    virtual void destroyInternalInfo(const CIL::ImageInfo* cil_img_info) {
-      assert(cil_img_info->internalInfo() == nullptr);
-      return;
-    }
+    virtual void destroyInternalInfo(const CIL::ImageInfo* cil_img_info);
     // TODO: Should we use `const void*` here?
-    virtual void* cloneInternalInfo(void *internal_img_info) {
-      assert (internal_img_info == nullptr);
-      return nullptr;
-    }
+    virtual void* cloneInternalInfo(void *internal_img_info);
   };
 }
 
