@@ -1,6 +1,10 @@
-add_library(cil ImageInfo.cpp ImageMatrix.cpp Pixel.cpp Transformations.cpp Drawing.cpp)
+add_library(cil ImageInfo.cpp ImageMatrix.cpp Pixel.cpp ThreadHandler.cpp Transformations.cpp Drawing.cpp)
 
 target_include_directories(cil PUBLIC ${CMAKE_SOURCE_DIR}/include)
+
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+target_link_libraries(cil PRIVATE Threads::Threads)
 
 if (CIL_ENABLE_JPEG)
     target_compile_definitions(cil PUBLIC CIL_JPEG_ENABLED)

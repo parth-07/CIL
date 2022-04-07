@@ -1,5 +1,4 @@
 #include <CIL/ImageInfo.hpp>
-#include <CIL/JPEG/JPEGHandler.hpp>
 #include <CIL/Transformations.hpp>
 
 int main(int argc, char* argv[])

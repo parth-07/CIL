@@ -18,7 +18,7 @@ namespace CIL {
         {
             if (v[index].joinable())
                 v[index].join();
-            v[index++] = std::thread(fn, prev_img, prev_px, new_px);
+            v[index++] = std::thread(fn, std::ref(prev_img), std::ref(prev_px), std::ref(new_px));
             index = index % processor_count;
         }
         void wait()
