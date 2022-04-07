@@ -4,6 +4,7 @@
 #include <CIL/Core/Types.hpp>
 #include <CIL/Core/Utils.hpp>
 #include <CIL/ImageInfo.hpp>
+#include <CIL/ThreadHandler.hpp>
 #include <CIL/Transformations.hpp>
 #include <cassert>
 #include <cmath>
@@ -12,10 +13,16 @@
 namespace CIL {
     void invertColor(ImageInfo& img)
     {
+        CIL::ThreadHandler th;
+        th.fn = [](ImageInfo& old_img, Pixel& px, Pixel& new_px) {
+            for (int i = 0;
+                 i < px.numComponents() - old_img.hasAlphaComponent(); i++)
+                new_px[i] = std::numeric_limits<uint8_t>::max() - px[i];
+        };
+
         for (auto px : img)
         {
-            for (int i = 0; i < px.numComponents(); i++)
-                px[i] = std::numeric_limits<uint8_t>::max() - px[i];
+            th.process_pixel(img, px, px);
         }
     }
 
