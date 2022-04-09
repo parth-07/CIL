@@ -14,15 +14,19 @@ namespace CIL {
     void invertColor(ImageInfo& img)
     {
         CIL::ThreadHandler th;
-        th.fn = [](ImageInfo& old_img, Pixel& px, Pixel& new_px) {
+        th.fn = [](ImageInfo& old_img, Pixel px, Pixel new_px) {
             for (int i = 0;
                  i < px.numComponents() - old_img.hasAlphaComponent(); i++)
                 new_px[i] = std::numeric_limits<uint8_t>::max() - px[i];
+            /*
+             *std::cerr << px.row() << " " << px.col() << "\n";
+             */
         };
 
         for (auto px : img)
         {
-            th.process_pixel(img, px, px);
+            if (px.isValid())
+                th.process_pixel(img, px, px);
         }
     }
 

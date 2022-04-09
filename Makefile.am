@@ -9,7 +9,7 @@ lib_LTLIBRARIES = libcil.la
 
 libcil_la_SOURCES = lib/ImageInfo.cpp lib/ImageMatrix.cpp lib/Pixel.cpp lib/Transformations.cpp \
 					lib/Core/Coordinate.cpp lib/Core/DetachedFPPixel.cpp lib/Core/Utils.cpp lib/PPM/PPMHandler.cpp \
-					lib/Drawing.cpp
+					lib/Drawing.cpp lib/ThreadHandler.cpp
 
 libcil_la_CXXFLAGS = $(AM_CPPFLAGS)
 libcil_la_LDFLAGS = $(AM_CPPFLAGS)

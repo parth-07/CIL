@@ -11,6 +11,7 @@ AC_PROG_CC
 AC_PROG_LN_S
 AM_CPPFLAGS="-std=c++11 -Wall -Wextra -Werror -pedantic -g "
 AC_SUBST([AM_CPPFLAGS])
+AX_PTHREAD
 
 # The project does not follow GNU Coding standards
 AM_INIT_AUTOMAKE([foreign subdir-objects])
