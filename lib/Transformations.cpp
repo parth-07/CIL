@@ -226,13 +226,14 @@ namespace CIL {
     // TODO: Add `preserve_image` parameter.
     void rotate(ImageInfo& img, int degrees, RotationKind rotation_kind)
     {
-        ImageMatrix tf_img_data(img.width(), img.height(), img.numComponents(),
-                                img.sampleDepth());
+        ThreadHandler th;
+        ImageMatrix new_image_data(img.width(), img.height(),
+                                   img.numComponents(), img.sampleDepth());
 
         Coordinate origin((img.width() / 2) + 0.5, (img.height() / 2) + 0.5);
 
-        for (auto px : tf_img_data)
-        {
+        th.fn = [&](int row, int col) {
+            auto px = new_image_data(row, col);
             Coordinate P(px.col() + 0.5, px.row() + 0.5);
             auto source = utils::computeCoordinateAfterRotation(origin, P,
                                                                 -degrees);
@@ -244,15 +245,19 @@ namespace CIL {
                 auto source_pixel = img(std::lround(source.y),
                                         std::lround(source.x));
                 if (!source_pixel.isValid())
-                    continue;
+                    return;
 
                 for (auto i = 0; i < px.numComponents(); ++i)
                 {
                     px[i] = source_pixel[i];
                 }
             }
-        }
-        img.setData(tf_img_data);
+        };
+
+        for (auto i = 0U; i < new_image_data.height(); i++)
+            th.process_row(i, new_image_data.width());
+
+        img.setData(new_image_data);
     }
 
     void convertToGrayscale(ImageInfo& img, bool preserve_colortype)
@@ -289,14 +294,15 @@ namespace CIL {
     void resize(ImageInfo& img, uint32_t new_width, uint32_t new_height,
                 ResizeAlgorithm resize_algorithm)
     {
+        ThreadHandler th;
         double scale_x = (new_width * 1.00) / img.width();
         double scale_y = (new_height * 1.00) / img.height();
 
         ImageMatrix new_image_data(new_width, new_height, img.numComponents(),
                                    img.sampleDepth());
 
-        for (auto px : new_image_data)
-        {
+        th.fn = [&](int row, int col) {
+            auto px = new_image_data(row, col);
             Coordinate source = {px.col() / scale_x, px.row() / scale_y};
             switch (resize_algorithm)
             {
@@ -312,7 +318,11 @@ namespace CIL {
                     px = utils::bilinearInterpolation(img, source);
                     break;
             }
-        }
+        };
+
+        for (auto i = 0U; i < new_image_data.height(); i++)
+            th.process_row(i, new_image_data.width());
+
         img.setData(new_image_data);
     }
 
