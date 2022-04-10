@@ -7,21 +7,24 @@
 namespace CIL {
     class ThreadHandler
     {
-        const int processor_count = 512; // std::thread::hardware_concurrency();
+        const int processor_count = std::thread::hardware_concurrency();
         std::vector<std::thread> v;
         static int index;
 
       public:
-        std::function<void(ImageInfo&, Pixel, Pixel)> fn;
+        std::function<void(int, int)> fn;
         ThreadHandler() { v.resize(processor_count); }
-        void process_pixel(ImageInfo& prev_img, Pixel prev_px, Pixel new_px)
+        void process_row(int row, int width)
         {
-            assert(prev_px == new_px);
             if (v[index].joinable())
-            {
                 v[index].join();
-            }
-            v[index++] = std::thread(fn, std::ref(prev_img), prev_px, new_px);
+
+            std::function<void()> fn2 = [this, row, width]() {
+                for (auto i = 0; i < width; i++)
+                    fn(row, i);
+            };
+
+            v[index++] = std::thread(fn2);
             index = index % processor_count;
         }
         void wait()
