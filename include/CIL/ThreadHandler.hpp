@@ -7,7 +7,9 @@
 namespace CIL {
     class ThreadHandler
     {
-        const int processor_count = std::thread::hardware_concurrency();
+        const int processor_count = (std::thread::hardware_concurrency()
+                                         ? 2
+                                         : std::thread::hardware_concurrency());
         std::vector<std::thread> v;
         static int index;
 
@@ -16,6 +18,8 @@ namespace CIL {
         ThreadHandler() { v.resize(processor_count); }
         void process_row(int row, int width)
         {
+            assert(fn && "fn should not be empty!!");
+
             if (v[index].joinable())
                 v[index].join();
 
