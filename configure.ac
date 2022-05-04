@@ -56,7 +56,7 @@ AS_IF(
       [libturbojpeg], [libturbojpeg >= 2.1.1], 
       [AC_DEFINE([CIL_JPEG_ENABLED], [1], [Use LIBJPEG_TURBO])], 
       [PKG_CHECK_MODULES(
-         [libjpeg], [libjpeg = 9.4.0], 
+         [libjpeg], [libjpeg >= 9.4.0],
          [AC_DEFINE([CIL_JPEG_ENABLED], [1], [Use LIBJPEG])] 
       )]
     )]

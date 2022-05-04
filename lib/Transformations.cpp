@@ -14,7 +14,8 @@ namespace CIL {
     {
         for (auto px : img)
         {
-            for (int i = 0; i < px.numComponents(); i++)
+            for (int i = 0; i < px.numComponents() - img.hasAlphaComponent();
+                 i++)
                 px[i] = std::numeric_limits<uint8_t>::max() - px[i];
         }
     }
