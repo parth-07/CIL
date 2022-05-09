@@ -1,0 +1,11 @@
+image:
+  file: .gitpod.dockerfile
+
+tasks: 
+  - name: "Initialise"
+    init: |
+      cd /workspace/
+      mkdir obj inst
+      cd obj 
+      cmake -G Ninja ../CIL -DCMAKE_BUILD_TYPE=Debug -DCIL_BUILD_TESTS=On -CMAKE_INSTALL_PREFIX=../inst
+      ninja install
