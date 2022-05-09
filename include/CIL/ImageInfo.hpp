@@ -89,6 +89,8 @@ namespace CIL {
         uint8_t& operator()(uint32_t row, uint32_t col, int comp);
         const uint8_t& operator()(uint32_t row, uint32_t col, int comp) const;
 
+        CIL::Dimensions getDimensions(std::pair<uint32_t, uint32_t> start,
+                                      int length, int breadth);
         void printImageInfo();
         bool save(const std::string& filename) const;
         bool hasAlphaComponent() const;

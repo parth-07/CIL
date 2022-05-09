@@ -46,6 +46,8 @@ example_PROGRAMS = examples/remove_red_from_rgb examples/invert \
 
 endif
 
+bin_PROGRAMS = tools/cli
+
 ## Tests
 if TESTS
 SUBDIRS += tests

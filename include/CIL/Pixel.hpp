@@ -28,8 +28,9 @@ namespace CIL {
             left = other.left;
             return *this;
         }
-        Dimensions(ImageMatrix* img_info, std::pair<uint32_t, uint32_t> start,
-                   uint32_t width, uint32_t height);
+        Dimensions(const ImageMatrix* img_info,
+                   std::pair<uint32_t, uint32_t> start, uint32_t width,
+                   uint32_t height);
         void showBounds()
         {
             fprintf(stderr, "top: %u, bottom: %u, right: %u, left: %u\n", top,

@@ -1,4 +1,5 @@
 #include <CIL/ImageInfo.hpp>
+#include <fstream>
 #ifdef CIL_JPEG_ENABLED
 #include <CIL/JPEG/JPEGHandler.hpp>
 #endif
@@ -115,22 +116,32 @@ namespace CIL {
 
     CIL::ImageInfo readImage(const char* filename)
     {
+        std::ifstream f(filename);
+        if (!f.good())
+        {
+            printf("File not found: %s\n", filename);
+            return ImageInfo();
+        }
+        f.close();
+
+        if (ppm_handler.isValidFile(filename))
+        {
+            return ppm_handler.read(filename);
+        }
 #ifdef CIL_PNG_ENABLED
-        if (PNG::PNGHandler::isPNGFile(filename))
+        else if (PNG::PNGHandler::isPNGFile(filename))
         {
             return PNG::PNGHandler::readAs8RGB(filename);
         }
 #endif
 #ifdef CIL_JPEG_ENABLED
-        if (JPEG::JPEGHandler::isJPEGFile(filename))
+        else if (JPEG::JPEGHandler::isJPEGFile(filename))
         {
             return JPEG::JPEGHandler::read(filename);
         }
 #endif
-        if (ppm_handler.isValidFile(filename))
-        {
-            return ppm_handler.read(filename);
-        }
+        else
+            assert("Image not compatible");
         return ImageInfo();
     }
 
@@ -203,6 +214,13 @@ namespace CIL {
                                                        img2.getData());
         show(err_percentage);
         return err_percentage <= allowed_error_percentage;
+    }
+
+    CIL::Dimensions
+    ImageInfo::getDimensions(std::pair<uint32_t, uint32_t> start, int length,
+                             int breadth)
+    {
+        return CIL::Dimensions(&m_data, start, length, breadth);
     }
 
     bool equal(const ImageInfo& img1, const std::string& image2_path)

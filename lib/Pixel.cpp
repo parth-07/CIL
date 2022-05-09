@@ -7,7 +7,7 @@
 #include <limits>
 
 namespace CIL {
-    Dimensions::Dimensions(ImageMatrix* img_info,
+    Dimensions::Dimensions(const ImageMatrix* img_info,
                            std::pair<uint32_t, uint32_t> start, uint32_t width,
                            uint32_t height)
     {
