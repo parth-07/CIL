@@ -1,0 +1,20 @@
+image:
+  file: .gitpod.dockerfile
+
+tasks: 
+  - name: "Initialise"
+    init: |
+      cd /workspace/
+      mkdir -p dependencies/libjpeg/src dependencies/libjpeg/inst
+      cd dependencies/libjpeg
+      wget -O libjpeg.tar.gz https://www.ijg.org/files/jpegsrc.v9e.tar.gz
+      tar -xf libjpeg.tar.gz -C src/ --strip-components=1
+      cd src
+      ./configure --prefix=`pwd`/../inst
+      make install
+
+      cd /workspace/
+      mkdir obj inst
+      cd obj 
+      cmake -G Ninja ../CIL -DCMAKE_BUILD_TYPE=Debug -DCIL_BUILD_TESTS=On -DCMAKE_INSTALL_PREFIX=../inst
+      ninja install
